@@ -1,0 +1,129 @@
+# Before using this makefile:
+# 1. Build with Microsoft Visual Studio 2015.
+# 2. Make sure b2 is in the PATH.
+# 3. Update the *_DIR variables below to point to your local source code directories.
+# 4. Run "b2 headers toolset=msvc-14.0" in the Boost source directories specified below.
+
+PATH=$(MAKEDIR)\..\boost-build-win32\bin;$(PATH)
+
+BOOST_ORIG_DIR   = $(MAKEDIR)\boost_git_orig
+BOOST_FIXED_DIR  = $(MAKEDIR)\boost_git_fixed
+BOOST_AUSTIN_DIR = $(MAKEDIR)\boost_git_austin
+
+BUILD_BOOST = b2 --build-dir=dist --with-date_time --with-chrono --with-thread --with-system toolset=msvc-14.0 address-model=64 link=static variant=debug
+
+COMPILE_COMMON = cl /EHsc /MDd /Zi test_time_jumps.cpp libboost_date_time-vc140-mt-gd-1_65_1.lib libboost_chrono-vc140-mt-gd-1_65_1.lib libboost_thread-vc140-mt-gd-1_65_1.lib libboost_system-vc140-mt-gd-1_65_1.lib
+COMPILE_COMMON = $(COMPILE_COMMON) /std:c++14 /DCPP14_ENABLED
+COMPILE_COMMON = $(COMPILE_COMMON) /DBOOST_THREAD_PROVIDES_FUTURE
+
+COMPILE_ORIG = copy /Y $(BOOST_ORIG_DIR)\stage\lib\libboost_date_time-vc140-mt-gd-1_65_1.lib $(BOOST_ORIG_DIR)\stage\lib\libboost_date_time-vc140-mt-gd-1_66.lib & \
+               copy /Y $(BOOST_ORIG_DIR)\stage\lib\libboost_chrono-vc140-mt-gd-1_65_1.lib    $(BOOST_ORIG_DIR)\stage\lib\libboost_chrono-vc140-mt-gd-1_66.lib & \
+               copy /Y $(BOOST_ORIG_DIR)\stage\lib\libboost_thread-vc140-mt-gd-1_65_1.lib    $(BOOST_ORIG_DIR)\stage\lib\libboost_thread-vc140-mt-gd-1_66.lib & \
+               copy /Y $(BOOST_ORIG_DIR)\stage\lib\libboost_system-vc140-mt-gd-1_65_1.lib    $(BOOST_ORIG_DIR)\stage\lib\libboost_system-vc140-mt-gd-1_66.lib & \
+               $(COMPILE_COMMON) /I $(BOOST_ORIG_DIR)
+
+COMPILE_FIXED = copy /Y $(BOOST_FIXED_DIR)\stage\lib\libboost_date_time-vc140-mt-gd-1_65_1.lib $(BOOST_FIXED_DIR)\stage\lib\libboost_date_time-vc140-mt-gd-1_66.lib & \
+                copy /Y $(BOOST_FIXED_DIR)\stage\lib\libboost_chrono-vc140-mt-gd-1_65_1.lib    $(BOOST_FIXED_DIR)\stage\lib\libboost_chrono-vc140-mt-gd-1_66.lib & \
+                copy /Y $(BOOST_FIXED_DIR)\stage\lib\libboost_thread-vc140-mt-gd-1_65_1.lib    $(BOOST_FIXED_DIR)\stage\lib\libboost_thread-vc140-mt-gd-1_66.lib & \
+                copy /Y $(BOOST_FIXED_DIR)\stage\lib\libboost_system-vc140-mt-gd-1_65_1.lib    $(BOOST_FIXED_DIR)\stage\lib\libboost_system-vc140-mt-gd-1_66.lib & \
+                $(COMPILE_COMMON) /I $(BOOST_FIXED_DIR)
+
+COMPILE_AUSTIN = copy /Y $(BOOST_AUSTIN_DIR)\stage\lib\libboost_date_time-vc140-mt-gd-1_65_1.lib $(BOOST_AUSTIN_DIR)\stage\lib\libboost_date_time-vc140-mt-gd-1_66.lib & \
+                 copy /Y $(BOOST_AUSTIN_DIR)\stage\lib\libboost_chrono-vc140-mt-gd-1_65_1.lib    $(BOOST_AUSTIN_DIR)\stage\lib\libboost_chrono-vc140-mt-gd-1_66.lib & \
+                 copy /Y $(BOOST_AUSTIN_DIR)\stage\lib\libboost_thread-vc140-mt-gd-1_65_1.lib    $(BOOST_AUSTIN_DIR)\stage\lib\libboost_thread-vc140-mt-gd-1_66.lib & \
+                 copy /Y $(BOOST_AUSTIN_DIR)\stage\lib\libboost_system-vc140-mt-gd-1_65_1.lib    $(BOOST_AUSTIN_DIR)\stage\lib\libboost_system-vc140-mt-gd-1_66.lib & \
+                 $(COMPILE_COMMON) /I $(BOOST_AUSTIN_DIR)
+
+COMPILE_ORIG_NO    = $(COMPILE_ORIG) /link /LIBPATH:$(BOOST_ORIG_DIR)\stage\lib /DEBUG
+COMPILE_ORIG_YES   = $(COMPILE_ORIG) /DBOOST_THREAD_HAS_CONDATTR_SET_CLOCK_MONOTONIC /link /LIBPATH:$(BOOST_ORIG_DIR)\stage\lib /DEBUG
+COMPILE_FIXED_NO   = $(COMPILE_FIXED) /link /LIBPATH:$(BOOST_FIXED_DIR)\stage\lib /DEBUG
+COMPILE_FIXED_YES  = $(COMPILE_FIXED) /DBOOST_THREAD_HAS_CONDATTR_SET_CLOCK_MONOTONIC /link /LIBPATH:$(BOOST_FIXED_DIR)\stage\lib /DEBUG
+COMPILE_AUSTIN_NO  = $(COMPILE_AUSTIN) /link /LIBPATH:$(BOOST_AUSTIN_DIR)\stage\lib /DEBUG
+COMPILE_AUSTIN_YES = $(COMPILE_AUSTIN) /DBOOST_THREAD_HAS_CONDATTR_SET_CLOCK_MONOTONIC /link /LIBPATH:$(BOOST_AUSTIN_DIR)\stage\lib /DEBUG
+
+CLEAN_ORIG = @rmdir /S /Q $(BOOST_ORIG_DIR)\dist & \
+             @rmdir /S /Q $(BOOST_ORIG_DIR)\bin.v2 & \
+             @rmdir /S /Q $(BOOST_ORIG_DIR)\stage & \
+             @rmdir /S /Q $(BOOST_ORIG_DIR)\libs\config\checks\architecture\bin & \
+             @del $(MAKEDIR)\test_time_jumps.obj
+
+CLEAN_FIXED = @rmdir /S /Q $(BOOST_FIXED_DIR)\dist & \
+              @rmdir /S /Q $(BOOST_FIXED_DIR)\bin.v2 & \
+              @rmdir /S /Q $(BOOST_FIXED_DIR)\stage & \
+              @rmdir /S /Q $(BOOST_FIXED_DIR)\libs\config\checks\architecture\bin & \
+              @del $(MAKEDIR)\test_time_jumps.obj
+
+CLEAN_AUSTIN = @rmdir /S /Q $(BOOST_AUSTIN_DIR)\dist & \
+               @rmdir /S /Q $(BOOST_AUSTIN_DIR)\bin.v2 & \
+               @rmdir /S /Q $(BOOST_AUSTIN_DIR)\stage & \
+               @rmdir /S /Q $(BOOST_AUSTIN_DIR)\libs\config\checks\architecture\bin & \
+               @del $(MAKEDIR)\test_time_jumps.obj
+
+# Don't build the "austin" version by default.
+all: orig fixed
+
+clean: clean-orig clean-fixed clean-austin
+
+# Don't build the "yes" versions by default.
+orig: orig-no
+
+fixed: fixed-no
+
+austin: austin-no
+
+clean-orig:
+	$(CLEAN_ORIG) & \
+	@del $(MAKEDIR)\test_time_jumps_orig_no_monotonic.* & \
+	@del $(MAKEDIR)\test_time_jumps_orig_yes_monotonic.*
+
+clean-fixed:
+	$(CLEAN_FIXED) & \
+	@del $(MAKEDIR)\test_time_jumps_fixed_no_monotonic.* & \
+	@del $(MAKEDIR)\test_time_jumps_fixed_yes_monotonic.*
+
+clean-austin:
+	$(CLEAN_AUSTIN) & \
+	@del $(MAKEDIR)\test_time_jumps_austin_no_monotonic.* & \
+	@del $(MAKEDIR)\test_time_jumps_austin_yes_monotonic.*
+
+orig-no: test_time_jumps.cpp
+	$(CLEAN_ORIG) & \
+	@del $(MAKEDIR)\test_time_jumps_orig_no_monotonic.* & \
+	cd $(BOOST_ORIG_DIR) & $(BUILD_BOOST) stage & \
+	cd $(MAKEDIR) & $(COMPILE_ORIG_NO) /out:test_time_jumps_orig_no_monotonic.exe & \
+	$(CLEAN_ORIG)
+
+orig-yes: test_time_jumps.cpp
+	$(CLEAN_ORIG) & \
+	@del $(MAKEDIR)\test_time_jumps_orig_yes_monotonic.* & \
+	cd $(BOOST_ORIG_DIR) & $(BUILD_BOOST) cxxflags=-DBOOST_THREAD_HAS_CONDATTR_SET_CLOCK_MONOTONIC stage & \
+	cd $(MAKEDIR) & $(COMPILE_ORIG_YES) /out:test_time_jumps_orig_yes_monotonic.exe & \
+	$(CLEAN_ORIG)
+
+fixed-no: test_time_jumps.cpp
+	$(CLEAN_FIXED) & \
+	@del $(MAKEDIR)\test_time_jumps_fixed_no_monotonic.* & \
+	cd $(BOOST_FIXED_DIR) & $(BUILD_BOOST) stage & \
+	cd $(MAKEDIR) & $(COMPILE_FIXED_NO) /out:test_time_jumps_fixed_no_monotonic.exe & \
+	$(CLEAN_FIXED)
+
+fixed-yes: test_time_jumps.cpp
+	$(CLEAN_FIXED) & \
+	@del $(MAKEDIR)\test_time_jumps_fixed_yes_monotonic.* & \
+	cd $(BOOST_FIXED_DIR) & $(BUILD_BOOST) cxxflags=-DBOOST_THREAD_HAS_CONDATTR_SET_CLOCK_MONOTONIC stage & \
+	cd $(MAKEDIR) & $(COMPILE_FIXED_YES) /out:test_time_jumps_fixed_yes_monotonic.exe & \
+	$(CLEAN_FIXED)
+
+austin-no: test_time_jumps.cpp
+	$(CLEAN_AUSTIN) & \
+	@del $(MAKEDIR)\test_time_jumps_austin_no_monotonic.* & \
+	cd $(BOOST_AUSTIN_DIR) & $(BUILD_BOOST) stage & \
+	cd $(MAKEDIR) & $(COMPILE_AUSTIN_NO) /out:test_time_jumps_austin_no_monotonic.exe & \
+	$(CLEAN_AUSTIN)
+
+austin-yes: test_time_jumps.cpp
+	$(CLEAN_AUSTIN) & \
+	@del $(MAKEDIR)\test_time_jumps_austin_yes_monotonic.* & \
+	cd $(BOOST_AUSTIN_DIR) & $(BUILD_BOOST) cxxflags=-DBOOST_THREAD_HAS_CONDATTR_SET_CLOCK_MONOTONIC stage & \
+	cd $(MAKEDIR) & $(COMPILE_AUSTIN_YES) /out:test_time_jumps_austin_yes_monotonic.exe & \
+	$(CLEAN_AUSTIN)
