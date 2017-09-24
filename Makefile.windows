@@ -6,9 +6,9 @@
 
 PATH=$(MAKEDIR)\..\boost-build-win32\bin;$(PATH)
 
-BOOST_ORIG_DIR   = $(MAKEDIR)\boost_git_orig
-BOOST_FIXED_DIR  = $(MAKEDIR)\boost_git_fixed
-BOOST_AUSTIN_DIR = $(MAKEDIR)\boost_git_austin
+BOOST_ORIG_DIR   = $(MAKEDIR)\boost_git_orig   # boostorg/thread develop branch
+BOOST_FIXED_DIR  = $(MAKEDIR)\boost_git_fixed  # boostorg/thread feature/timespec_clocks branch
+BOOST_AUSTIN_DIR = $(MAKEDIR)\boost_git_austin # austin-beer/thread feature/timespec_clocks_prX branch
 
 BUILD_BOOST = b2 --build-dir=dist --with-date_time --with-chrono --with-thread --with-system toolset=msvc-14.0 address-model=64 link=static variant=debug
 
