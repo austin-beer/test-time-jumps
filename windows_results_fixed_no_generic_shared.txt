@@ -2,11 +2,13 @@
 NOTE: Run this test as root so it can change the system clock
 NOTE: Disable NTP while this test is running
 
-BOOST_HAS_PTHREAD_DELAY_NP:                    NO
-BOOST_HAS_NANOSLEEP:                           NO
-BOOST_THREAD_SLEEP_FOR_IS_STEADY:              NO
-CLOCK_MONOTONIC:                               NO
-BOOST_THREAD_HAS_CONDATTR_SET_CLOCK_MONOTONIC: NO
+BOOST_HAS_PTHREAD_DELAY_NP:                             NO
+BOOST_HAS_NANOSLEEP:                                    NO
+BOOST_THREAD_SLEEP_FOR_IS_STEADY:                       NO
+CLOCK_MONOTONIC:                                        NO
+BOOST_THREAD_PROVIDES_GENERIC_SHARED_MUTEX_ON_WIN:      NO
+BOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSIONS: NO
+BOOST_THREAD_HAS_CONDATTR_SET_CLOCK_MONOTONIC:          NO
 
 Wait Time:              580 ms
 Short Jump Time:        230 ms
@@ -16,35 +18,35 @@ Max Early Error:        110 ms
 Max Late Error:         210 ms
 
 boost::this_thread::sleep_for():
-    While system clock remains stable:        Expected:  580 ms, Actual:  606 ms, Returned: timeout,    Passed
-    While system clock jumps back (short):    Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
+    While system clock remains stable:        Expected:  580 ms, Actual:  584 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
-    While system clock jumps forward (short): Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps forward (long):  Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
 boost::this_thread::sleep_until(), steady time:
     While system clock remains stable:        Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
-    While system clock jumps forward (long):  Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
 boost::this_thread::sleep_until(), system time:
-    While system clock remains stable:        Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
-    While system clock jumps back (short):    Expected:  810 ms, Actual:  841 ms, Returned: timeout,    Passed
-    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1512 ms, Returned: timeout,    Passed
-    While system clock jumps forward (short): Expected:  350 ms, Actual:  357 ms, Returned: timeout,    Passed
-    While system clock jumps forward (long):  Expected:  110 ms, Actual:  139 ms, Returned: timeout,    Passed
-boost::this_thread::sleep_until(), custom time:
-    While system clock remains stable:        Expected:  580 ms, Actual:  591 ms, Returned: timeout,    Passed
-    While system clock jumps back (short):    Expected:  810 ms, Actual:  857 ms, Returned: timeout,    Passed
-    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1496 ms, Returned: timeout,    Passed
+    While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1450 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  350 ms, Actual:  358 ms, Returned: timeout,    Passed
-    While system clock jumps forward (long):  Expected:  110 ms, Actual:  139 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  124 ms, Returned: timeout,    Passed
+boost::this_thread::sleep_until(), custom time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1481 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  358 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  249 ms, Returned: timeout,    Passed
 boost::this_thread::sleep(), posix duration:
     While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
-    While system clock jumps forward (long):  Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  591 ms, Returned: timeout,    Passed
 boost::this_thread::sleep(), posix system time:
     While system clock remains stable:        Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  810 ms, Actual:  826 ms, Returned: timeout,    Passed
@@ -53,8 +55,8 @@ boost::this_thread::sleep(), posix system time:
     While system clock jumps forward (long):  Expected:  110 ms, Actual:  124 ms, Returned: timeout,    Passed
 
 boost::this_thread::no_interruption_point::sleep_for():
-    While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
-    While system clock jumps back (short):    Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
+    While system clock remains stable:        Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
     While system clock jumps forward (long):  Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
@@ -68,60 +70,60 @@ boost::this_thread::no_interruption_point::sleep_until(), system time:
     While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected: 1450 ms, Actual: 1450 ms, Returned: timeout,    Passed
-    While system clock jumps forward (short): Expected:  350 ms, Actual:  389 ms, Returned: timeout,    Passed
-    While system clock jumps forward (long):  Expected:  110 ms, Actual:  217 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  358 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  124 ms, Returned: timeout,    Passed
 boost::this_thread::no_interruption_point::sleep_until(), custom time:
-    While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
+    While system clock remains stable:        Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  810 ms, Actual:  841 ms, Returned: timeout,    Passed
-    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1465 ms, Returned: timeout,    Passed
-    While system clock jumps forward (short): Expected:  350 ms, Actual:  373 ms, Returned: timeout,    Passed
-    While system clock jumps forward (long):  Expected:  110 ms, Actual:  217 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1450 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  358 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  249 ms, Returned: timeout,    Passed
 boost::this_thread::no_interruption_point::sleep(), posix duration:
     While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
-    While system clock jumps back (short):    Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
-    While system clock jumps forward (long):  Expected:  580 ms, Actual:  591 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
 boost::this_thread::no_interruption_point::sleep(), posix system time:
     While system clock remains stable:        Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
-    While system clock jumps back (short):    Expected:  810 ms, Actual:  828 ms, Returned: timeout,    Passed
-    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1463 ms, Returned: timeout,    Passed
-    While system clock jumps forward (short): Expected:  350 ms, Actual:  373 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  826 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1481 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  358 ms, Returned: timeout,    Passed
     While system clock jumps forward (long):  Expected:  110 ms, Actual:  124 ms, Returned: timeout,    Passed
 
 boost::this_thread::sleep_for(), no thread:
     While system clock remains stable:        Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  608 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
+boost::this_thread::sleep_until(), no thread, steady time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  608 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected:  580 ms, Actual:  608 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps forward (long):  Expected:  580 ms, Actual:  608 ms, Returned: timeout,    Passed
-boost::this_thread::sleep_until(), no thread, steady time:
-    While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
-    While system clock jumps back (short):    Expected:  580 ms, Actual:  608 ms, Returned: timeout,    Passed
-    While system clock jumps back (long):     Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
-    While system clock jumps forward (short): Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
-    While system clock jumps forward (long):  Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
 boost::this_thread::sleep_until(), no thread, system time:
     While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
-    While system clock jumps back (short):    Expected:  810 ms, Actual:  857 ms, Returned: timeout,    Passed
-    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1512 ms, Returned: timeout,    Passed
-    While system clock jumps forward (short): Expected:  350 ms, Actual:  390 ms, Returned: timeout,    Passed
-    While system clock jumps forward (long):  Expected:  110 ms, Actual:  248 ms, Returned: timeout,    Passed
-boost::this_thread::sleep_until(), no thread, custom time:
-    While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
-    While system clock jumps back (short):    Expected:  810 ms, Actual:  826 ms, Returned: timeout,    Passed
-    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1481 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1450 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  350 ms, Actual:  358 ms, Returned: timeout,    Passed
-    While system clock jumps forward (long):  Expected:  110 ms, Actual:  155 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  124 ms, Returned: timeout,    Passed
+boost::this_thread::sleep_until(), no thread, custom time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  608 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  842 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1449 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  358 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  249 ms, Returned: timeout,    Passed
 boost::this_thread::sleep(), no thread, posix duration:
     While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
-    While system clock jumps back (short):    Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  608 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  580 ms, Actual:  608 ms, Returned: timeout,    Passed
     While system clock jumps forward (long):  Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
 boost::this_thread::sleep(), no thread, posix system time:
-    While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
-    While system clock jumps back (short):    Expected:  810 ms, Actual:  842 ms, Returned: timeout,    Passed
+    While system clock remains stable:        Expected:  580 ms, Actual:  608 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  826 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected: 1450 ms, Actual: 1481 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  350 ms, Actual:  358 ms, Returned: timeout,    Passed
     While system clock jumps forward (long):  Expected:  110 ms, Actual:  124 ms, Returned: timeout,    Passed
@@ -142,23 +144,23 @@ boost::this_thread::no_interruption_point::sleep_until(), no thread, system time
     While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected: 1450 ms, Actual: 1450 ms, Returned: timeout,    Passed
-    While system clock jumps forward (short): Expected:  350 ms, Actual:  389 ms, Returned: timeout,    Passed
-    While system clock jumps forward (long):  Expected:  110 ms, Actual:  249 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  358 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  124 ms, Returned: timeout,    Passed
 boost::this_thread::no_interruption_point::sleep_until(), no thread, custom time:
-    While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
-    While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: timeout,    Passed
+    While system clock remains stable:        Expected:  580 ms, Actual:  608 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  842 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected: 1450 ms, Actual: 1450 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  350 ms, Actual:  358 ms, Returned: timeout,    Passed
-    While system clock jumps forward (long):  Expected:  110 ms, Actual:  139 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  249 ms, Returned: timeout,    Passed
 boost::this_thread::no_interruption_point::sleep(), no thread, posix duration:
     While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  580 ms, Actual:  608 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
-    While system clock jumps forward (short): Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  608 ms, Returned: timeout,    Passed
     While system clock jumps forward (long):  Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
 boost::this_thread::no_interruption_point::sleep(), no thread, posix system time:
-    While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
-    While system clock jumps back (short):    Expected:  810 ms, Actual:  842 ms, Returned: timeout,    Passed
+    While system clock remains stable:        Expected:  580 ms, Actual:  608 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  826 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected: 1450 ms, Actual: 1481 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  350 ms, Actual:  358 ms, Returned: timeout,    Passed
     While system clock jumps forward (long):  Expected:  110 ms, Actual:  124 ms, Returned: timeout,    Passed
@@ -170,7 +172,7 @@ boost::thread::try_join_for():
     While system clock jumps forward (short): Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
     While system clock jumps forward (long):  Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
 boost::thread::try_join_until(), steady time:
-    While system clock remains stable:        Expected:  580 ms, Actual:  608 ms, Returned: timeout,    Passed
+    While system clock remains stable:        Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
@@ -180,19 +182,19 @@ boost::thread::try_join_until(), system time:
     While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected: 1450 ms, Actual: 1450 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  350 ms, Actual:  389 ms, Returned: timeout,    Passed
-    While system clock jumps forward (long):  Expected:  110 ms, Actual:  249 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  217 ms, Returned: timeout,    Passed
 boost::thread::try_join_until(), custom time:
     While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
-    While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: timeout,    Passed
-    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1450 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  842 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1449 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  350 ms, Actual:  358 ms, Returned: timeout,    Passed
     While system clock jumps forward (long):  Expected:  110 ms, Actual:  139 ms, Returned: timeout,    Passed
 boost::thread::timed_join(), posix duration:
     While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
-    While system clock jumps forward (short): Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
-    While system clock jumps forward (long):  Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
 boost::thread::timed_join(), posix system time:
     While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: timeout,    Passed
@@ -207,8 +209,8 @@ boost::condition_variable::wait_for():
     While system clock jumps forward (short): Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
     While system clock jumps forward (long):  Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
 boost::condition_variable::wait_until(), steady time:
-    While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
-    While system clock jumps back (short):    Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
+    While system clock remains stable:        Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
     While system clock jumps forward (long):  Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
@@ -222,29 +224,29 @@ boost::condition_variable::wait_until(), custom time:
     While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  810 ms, Actual:  607 ms, Returned: no_timeout, FAILED: TOO SHORT
     While system clock jumps back (long):     Expected: 1450 ms, Actual:  592 ms, Returned: no_timeout, FAILED: TOO SHORT
-    While system clock jumps forward (short): Expected:  350 ms, Actual:  592 ms, Returned: timeout,    FAILED: TOO LONG
-    While system clock jumps forward (long):  Expected:  110 ms, Actual:  607 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  607 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  592 ms, Returned: timeout,    FAILED: TOO LONG
 boost::condition_variable::timed_wait(), posix duration:
     While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
-    While system clock jumps forward (short): Expected:  580 ms, Actual:  608 ms, Returned: timeout,    Passed
-    While system clock jumps forward (long):  Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  591 ms, Returned: timeout,    Passed
 boost::condition_variable::timed_wait(), posix system time:
     While system clock remains stable:        Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  810 ms, Actual:  826 ms, Returned: timeout,    Passed
-    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1481 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1496 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  350 ms, Actual:  358 ms, Returned: timeout,    Passed
     While system clock jumps forward (long):  Expected:  110 ms, Actual:  124 ms, Returned: timeout,    Passed
 
 boost::condition_variable::wait_for(), with predicate:
-    While system clock remains stable:        Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
+    While system clock remains stable:        Expected:  580 ms, Actual:  591 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
-    While system clock jumps forward (long):  Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
 boost::condition_variable::wait_until(), with predicate, steady time:
-    While system clock remains stable:        Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
+    While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
@@ -252,38 +254,38 @@ boost::condition_variable::wait_until(), with predicate, steady time:
 boost::condition_variable::wait_until(), with predicate, system time:
     While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: timeout,    Passed
-    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1497 ms, Returned: timeout,    Passed
-    While system clock jumps forward (short): Expected:  350 ms, Actual:  592 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1496 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  591 ms, Returned: timeout,    FAILED: TOO LONG
     While system clock jumps forward (long):  Expected:  110 ms, Actual:  607 ms, Returned: timeout,    FAILED: TOO LONG
 boost::condition_variable::wait_until(), with predicate, custom time:
     While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected: 1450 ms, Actual: 1496 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  350 ms, Actual:  592 ms, Returned: timeout,    FAILED: TOO LONG
-    While system clock jumps forward (long):  Expected:  110 ms, Actual:  592 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  607 ms, Returned: timeout,    FAILED: TOO LONG
 boost::condition_variable::timed_wait(), with predicate, posix duration:
-    While system clock remains stable:        Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
+    While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps forward (long):  Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
 boost::condition_variable::timed_wait(), with predicate, posix system time:
     While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
-    While system clock jumps back (short):    Expected:  810 ms, Actual:  826 ms, Returned: timeout,    Passed
-    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1465 ms, Returned: timeout,    Passed
-    While system clock jumps forward (short): Expected:  350 ms, Actual:  373 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  841 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1481 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  358 ms, Returned: timeout,    Passed
     While system clock jumps forward (long):  Expected:  110 ms, Actual:  124 ms, Returned: timeout,    Passed
 
 boost::condition_variable_any::wait_for():
-    While system clock remains stable:        Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
+    While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
     While system clock jumps forward (long):  Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
 boost::condition_variable_any::wait_until(), steady time:
-    While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
-    While system clock jumps back (short):    Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
-    While system clock jumps back (long):     Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
+    While system clock remains stable:        Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected:  580 ms, Actual:  591 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
     While system clock jumps forward (long):  Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
 boost::condition_variable_any::wait_until(), system time:
@@ -296,8 +298,8 @@ boost::condition_variable_any::wait_until(), custom time:
     While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  810 ms, Actual:  607 ms, Returned: no_timeout, FAILED: TOO SHORT
     While system clock jumps back (long):     Expected: 1450 ms, Actual:  592 ms, Returned: no_timeout, FAILED: TOO SHORT
-    While system clock jumps forward (short): Expected:  350 ms, Actual:  592 ms, Returned: timeout,    FAILED: TOO LONG
-    While system clock jumps forward (long):  Expected:  110 ms, Actual:  607 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  607 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  592 ms, Returned: timeout,    FAILED: TOO LONG
 boost::condition_variable_any::timed_wait(), posix duration:
     While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
@@ -307,18 +309,18 @@ boost::condition_variable_any::timed_wait(), posix duration:
 boost::condition_variable_any::timed_wait(), posix system time:
     While system clock remains stable:        Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  810 ms, Actual:  826 ms, Returned: timeout,    Passed
-    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1481 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1497 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  350 ms, Actual:  358 ms, Returned: timeout,    Passed
     While system clock jumps forward (long):  Expected:  110 ms, Actual:  124 ms, Returned: timeout,    Passed
 
 boost::condition_variable_any::wait_for(), with predicate:
-    While system clock remains stable:        Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
+    While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
-    While system clock jumps forward (short): Expected:  580 ms, Actual:  591 ms, Returned: timeout,    Passed
-    While system clock jumps forward (long):  Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
 boost::condition_variable_any::wait_until(), with predicate, steady time:
-    While system clock remains stable:        Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
+    While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
@@ -326,17 +328,17 @@ boost::condition_variable_any::wait_until(), with predicate, steady time:
 boost::condition_variable_any::wait_until(), with predicate, system time:
     While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: timeout,    Passed
-    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1497 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1496 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  350 ms, Actual:  592 ms, Returned: timeout,    FAILED: TOO LONG
     While system clock jumps forward (long):  Expected:  110 ms, Actual:  607 ms, Returned: timeout,    FAILED: TOO LONG
 boost::condition_variable_any::wait_until(), with predicate, custom time:
     While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: timeout,    Passed
-    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1496 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1497 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  350 ms, Actual:  592 ms, Returned: timeout,    FAILED: TOO LONG
-    While system clock jumps forward (long):  Expected:  110 ms, Actual:  592 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  607 ms, Returned: timeout,    FAILED: TOO LONG
 boost::condition_variable_any::timed_wait(), with predicate, posix duration:
-    While system clock remains stable:        Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
+    While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
@@ -344,8 +346,8 @@ boost::condition_variable_any::timed_wait(), with predicate, posix duration:
 boost::condition_variable_any::timed_wait(), with predicate, posix system time:
     While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  810 ms, Actual:  826 ms, Returned: timeout,    Passed
-    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1465 ms, Returned: timeout,    Passed
-    While system clock jumps forward (short): Expected:  350 ms, Actual:  373 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1450 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  358 ms, Returned: timeout,    Passed
     While system clock jumps forward (long):  Expected:  110 ms, Actual:  124 ms, Returned: timeout,    Passed
 
 boost::timed_mutex::try_lock_for():
@@ -358,7 +360,7 @@ boost::timed_mutex::try_lock_until(), steady time:
     While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
-    While system clock jumps forward (short): Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  591 ms, Returned: timeout,    Passed
     While system clock jumps forward (long):  Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
 boost::timed_mutex::try_lock_until(), system time:
     While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
@@ -377,7 +379,7 @@ boost::timed_mutex::timed_lock(), posix duration:
     While system clock jumps back (short):    Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
-    While system clock jumps forward (long):  Expected:  580 ms, Actual:  591 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
 boost::timed_mutex::timed_lock(), posix system time:
     While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  810 ms, Actual:  592 ms, Returned: timeout,    FAILED: TOO SHORT
@@ -486,7 +488,7 @@ boost::shared_mutex::try_lock_shared_until(), custom time:
 boost::shared_mutex::timed_lock_shared(), posix duration:
     While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
-    While system clock jumps back (long):     Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected:  580 ms, Actual:  591 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps forward (long):  Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
 boost::shared_mutex::timed_lock_shared(), posix system time:
@@ -497,9 +499,9 @@ boost::shared_mutex::timed_lock_shared(), posix system time:
     While system clock jumps forward (long):  Expected:  110 ms, Actual:  592 ms, Returned: timeout,    FAILED: TOO LONG
 
 boost::future::wait_for():
-    While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
+    While system clock remains stable:        Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  580 ms, Actual:  591 ms, Returned: timeout,    Passed
-    While system clock jumps back (long):     Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  580 ms, Actual:  591 ms, Returned: timeout,    Passed
     While system clock jumps forward (long):  Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
 boost::future::wait_until(), steady time:
@@ -509,65 +511,65 @@ boost::future::wait_until(), steady time:
     While system clock jumps forward (short): Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
     While system clock jumps forward (long):  Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
 boost::future::wait_until(), system time:
-    While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
-    While system clock jumps back (short):    Expected:  810 ms, Actual:  826 ms, Returned: timeout,    Passed
-    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1481 ms, Returned: timeout,    Passed
-    While system clock jumps forward (short): Expected:  350 ms, Actual:  592 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock remains stable:        Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  841 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1450 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  591 ms, Returned: timeout,    FAILED: TOO LONG
     While system clock jumps forward (long):  Expected:  110 ms, Actual:  607 ms, Returned: timeout,    FAILED: TOO LONG
 boost::future::wait_until(), custom time:
-    While system clock remains stable:        Expected:  580 ms, Actual:  591 ms, Returned: timeout,    Passed
+    While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected: 1450 ms, Actual: 1496 ms, Returned: timeout,    Passed
-    While system clock jumps forward (short): Expected:  350 ms, Actual:  592 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  591 ms, Returned: timeout,    FAILED: TOO LONG
     While system clock jumps forward (long):  Expected:  110 ms, Actual:  607 ms, Returned: timeout,    FAILED: TOO LONG
 boost::future::timed_wait(), posix duration:
     While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  580 ms, Actual:  826 ms, Returned: timeout,    FAILED: TOO LONG
-    While system clock jumps back (long):     Expected:  580 ms, Actual: 1465 ms, Returned: timeout,    FAILED: TOO LONG
-    While system clock jumps forward (short): Expected:  580 ms, Actual:  373 ms, Returned: timeout,    FAILED: TOO SHORT
+    While system clock jumps back (long):     Expected:  580 ms, Actual: 1450 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  358 ms, Returned: timeout,    FAILED: TOO SHORT
     While system clock jumps forward (long):  Expected:  580 ms, Actual:  124 ms, Returned: timeout,    FAILED: TOO SHORT
 boost::future::timed_wait_until(), posix system time:
-    While system clock remains stable:        Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
-    While system clock jumps back (short):    Expected:  810 ms, Actual:  826 ms, Returned: timeout,    Passed
-    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1465 ms, Returned: timeout,    Passed
-    While system clock jumps forward (short): Expected:  350 ms, Actual:  373 ms, Returned: timeout,    Passed
-    While system clock jumps forward (long):  Expected:  110 ms, Actual:  123 ms, Returned: timeout,    Passed
+    While system clock remains stable:        Expected:  580 ms, Actual:  591 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  825 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1449 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  358 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  124 ms, Returned: timeout,    Passed
 
 boost::shared_future::wait_for():
+    While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  591 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
+boost::shared_future::wait_until(), steady time:
     While system clock remains stable:        Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
-    While system clock jumps forward (short): Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  591 ms, Returned: timeout,    Passed
     While system clock jumps forward (long):  Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
-boost::shared_future::wait_until(), steady time:
-    While system clock remains stable:        Expected:  580 ms, Actual:  591 ms, Returned: timeout,    Passed
-    While system clock jumps back (short):    Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
-    While system clock jumps back (long):     Expected:  580 ms, Actual:  591 ms, Returned: timeout,    Passed
-    While system clock jumps forward (short): Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
-    While system clock jumps forward (long):  Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
 boost::shared_future::wait_until(), system time:
-    While system clock remains stable:        Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
-    While system clock jumps back (short):    Expected:  810 ms, Actual:  841 ms, Returned: timeout,    Passed
-    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1465 ms, Returned: timeout,    Passed
+    While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1496 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  592 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  607 ms, Returned: timeout,    FAILED: TOO LONG
+boost::shared_future::wait_until(), custom time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1496 ms, Returned: timeout,    Passed
     While system clock jumps forward (short): Expected:  350 ms, Actual:  592 ms, Returned: timeout,    FAILED: TOO LONG
     While system clock jumps forward (long):  Expected:  110 ms, Actual:  592 ms, Returned: timeout,    FAILED: TOO LONG
-boost::shared_future::wait_until(), custom time:
+boost::shared_future::timed_wait(), posix duration:
+    While system clock remains stable:        Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  826 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps back (long):     Expected:  580 ms, Actual: 1450 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  358 ms, Returned: timeout,    FAILED: TOO SHORT
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  124 ms, Returned: timeout,    FAILED: TOO SHORT
+boost::shared_future::timed_wait_until(), posix system time:
     While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
     While system clock jumps back (short):    Expected:  810 ms, Actual:  826 ms, Returned: timeout,    Passed
     While system clock jumps back (long):     Expected: 1450 ms, Actual: 1481 ms, Returned: timeout,    Passed
-    While system clock jumps forward (short): Expected:  350 ms, Actual:  592 ms, Returned: timeout,    FAILED: TOO LONG
-    While system clock jumps forward (long):  Expected:  110 ms, Actual:  607 ms, Returned: timeout,    FAILED: TOO LONG
-boost::shared_future::timed_wait(), posix duration:
-    While system clock remains stable:        Expected:  580 ms, Actual:  592 ms, Returned: timeout,    Passed
-    While system clock jumps back (short):    Expected:  580 ms, Actual:  826 ms, Returned: timeout,    FAILED: TOO LONG
-    While system clock jumps back (long):     Expected:  580 ms, Actual: 1465 ms, Returned: timeout,    FAILED: TOO LONG
-    While system clock jumps forward (short): Expected:  580 ms, Actual:  373 ms, Returned: timeout,    FAILED: TOO SHORT
-    While system clock jumps forward (long):  Expected:  580 ms, Actual:  124 ms, Returned: timeout,    FAILED: TOO SHORT
-boost::shared_future::timed_wait_until(), posix system time:
-    While system clock remains stable:        Expected:  580 ms, Actual:  607 ms, Returned: timeout,    Passed
-    While system clock jumps back (short):    Expected:  810 ms, Actual:  826 ms, Returned: timeout,    Passed
-    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1465 ms, Returned: timeout,    Passed
-    While system clock jumps forward (short): Expected:  350 ms, Actual:  373 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  358 ms, Returned: timeout,    Passed
     While system clock jumps forward (long):  Expected:  110 ms, Actual:  124 ms, Returned: timeout,    Passed
 
 Number of Tests Run:    450

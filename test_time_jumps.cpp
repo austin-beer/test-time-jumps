@@ -1274,8 +1274,7 @@ void testMutexSharedBoost(const std::string& name)
 
 // Test Try Lock Upgrade
 
-// The following functions are not implemented in the Windows version of shared_mutex.
-#ifndef _WIN32
+#ifdef BOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSIONS
 
 template <typename Helper>
 void testTryLockUpgradeFor(typename Helper::mutex& m, const long long jumpMs)
@@ -1509,8 +1508,7 @@ void testTryUnlockSharedAndLockUpgradeUntilCustom(typename Helper::mutex& m, con
 template <typename Helper>
 void testMutexUpgradeBoost(const std::string& name)
 {
-// The following functions are not implemented in the Windows version of shared_mutex.
-#ifndef _WIN32
+#ifdef BOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSIONS
     std::cout << std::endl;
     runTest<Helper, testTryLockUpgradeFor        <Helper> >(name + "::try_lock_upgrade_for()");
     runTest<Helper, testTryLockUpgradeUntilSteady<Helper> >(name + "::try_lock_upgrade_until(), steady time");
@@ -1665,35 +1663,49 @@ int main()
     std::cout << "NOTE: Disable NTP while this test is running" << std::endl;
     std::cout << std::endl;
 
-    std::cout << "BOOST_HAS_PTHREAD_DELAY_NP:                    ";
+    std::cout << "BOOST_HAS_PTHREAD_DELAY_NP:                             ";
 #ifdef BOOST_HAS_PTHREAD_DELAY_NP
     std::cout << "YES" << std::endl;
 #else
     std::cout << "NO" << std::endl;
 #endif
 
-    std::cout << "BOOST_HAS_NANOSLEEP:                           ";
+    std::cout << "BOOST_HAS_NANOSLEEP:                                    ";
 #ifdef BOOST_HAS_NANOSLEEP
     std::cout << "YES" << std::endl;
 #else
     std::cout << "NO" << std::endl;
 #endif
 
-    std::cout << "BOOST_THREAD_SLEEP_FOR_IS_STEADY:              ";
+    std::cout << "BOOST_THREAD_SLEEP_FOR_IS_STEADY:                       ";
 #ifdef BOOST_THREAD_SLEEP_FOR_IS_STEADY
     std::cout << "YES" << std::endl;
 #else
     std::cout << "NO" << std::endl;
 #endif
 
-    std::cout << "CLOCK_MONOTONIC:                               ";
+    std::cout << "CLOCK_MONOTONIC:                                        ";
 #ifdef CLOCK_MONOTONIC
     std::cout << "YES" << std::endl;
 #else
     std::cout << "NO" << std::endl;
 #endif
 
-    std::cout << "BOOST_THREAD_HAS_CONDATTR_SET_CLOCK_MONOTONIC: ";
+    std::cout << "BOOST_THREAD_PROVIDES_GENERIC_SHARED_MUTEX_ON_WIN:      ";
+#ifdef BOOST_THREAD_PROVIDES_GENERIC_SHARED_MUTEX_ON_WIN
+    std::cout << "YES" << std::endl;
+#else
+    std::cout << "NO" << std::endl;
+#endif
+
+    std::cout << "BOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSIONS: ";
+#ifdef BOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSIONS
+    std::cout << "YES" << std::endl;
+#else
+    std::cout << "NO" << std::endl;
+#endif
+
+    std::cout << "BOOST_THREAD_HAS_CONDATTR_SET_CLOCK_MONOTONIC:          ";
 #ifdef BOOST_THREAD_HAS_CONDATTR_SET_CLOCK_MONOTONIC
     std::cout << "YES" << std::endl;
 #else

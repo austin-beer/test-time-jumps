@@ -38,11 +38,11 @@ COMPILE_AUSTIN = copy /Y $(BOOST_AUSTIN_DIR)\stage\lib\libboost_date_time-vc140-
                  $(COMPILE_COMMON) /I $(BOOST_AUSTIN_DIR)
 
 COMPILE_ORIG_NO    = $(COMPILE_ORIG) /link /LIBPATH:$(BOOST_ORIG_DIR)\stage\lib /DEBUG
-COMPILE_ORIG_YES   = $(COMPILE_ORIG) /DBOOST_THREAD_HAS_CONDATTR_SET_CLOCK_MONOTONIC /link /LIBPATH:$(BOOST_ORIG_DIR)\stage\lib /DEBUG
+COMPILE_ORIG_YES   = $(COMPILE_ORIG) /DBOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSIONS /link /LIBPATH:$(BOOST_ORIG_DIR)\stage\lib /DEBUG
 COMPILE_FIXED_NO   = $(COMPILE_FIXED) /link /LIBPATH:$(BOOST_FIXED_DIR)\stage\lib /DEBUG
-COMPILE_FIXED_YES  = $(COMPILE_FIXED) /DBOOST_THREAD_HAS_CONDATTR_SET_CLOCK_MONOTONIC /link /LIBPATH:$(BOOST_FIXED_DIR)\stage\lib /DEBUG
+COMPILE_FIXED_YES  = $(COMPILE_FIXED) /DBOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSIONS /link /LIBPATH:$(BOOST_FIXED_DIR)\stage\lib /DEBUG
 COMPILE_AUSTIN_NO  = $(COMPILE_AUSTIN) /link /LIBPATH:$(BOOST_AUSTIN_DIR)\stage\lib /DEBUG
-COMPILE_AUSTIN_YES = $(COMPILE_AUSTIN) /DBOOST_THREAD_HAS_CONDATTR_SET_CLOCK_MONOTONIC /link /LIBPATH:$(BOOST_AUSTIN_DIR)\stage\lib /DEBUG
+COMPILE_AUSTIN_YES = $(COMPILE_AUSTIN) /DBOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSIONS /link /LIBPATH:$(BOOST_AUSTIN_DIR)\stage\lib /DEBUG
 
 CLEAN_ORIG = @rmdir /S /Q $(BOOST_ORIG_DIR)\dist & \
              @rmdir /S /Q $(BOOST_ORIG_DIR)\bin.v2 & \
@@ -67,66 +67,65 @@ all: orig fixed
 
 clean: clean-orig clean-fixed clean-austin
 
-# Don't build the "yes" versions by default.
-orig: orig-no
+orig: orig-no orig-yes
 
-fixed: fixed-no
+fixed: fixed-no fixed-yes
 
-austin: austin-no
+austin: austin-no austin-yes
 
 clean-orig:
 	$(CLEAN_ORIG) & \
-	@del $(MAKEDIR)\test_time_jumps_orig_no_monotonic.* & \
-	@del $(MAKEDIR)\test_time_jumps_orig_yes_monotonic.*
+	@del $(MAKEDIR)\test_time_jumps_orig_no_generic_shared.* & \
+	@del $(MAKEDIR)\test_time_jumps_orig_yes_generic_shared.*
 
 clean-fixed:
 	$(CLEAN_FIXED) & \
-	@del $(MAKEDIR)\test_time_jumps_fixed_no_monotonic.* & \
-	@del $(MAKEDIR)\test_time_jumps_fixed_yes_monotonic.*
+	@del $(MAKEDIR)\test_time_jumps_fixed_no_generic_shared.* & \
+	@del $(MAKEDIR)\test_time_jumps_fixed_yes_generic_shared.*
 
 clean-austin:
 	$(CLEAN_AUSTIN) & \
-	@del $(MAKEDIR)\test_time_jumps_austin_no_monotonic.* & \
-	@del $(MAKEDIR)\test_time_jumps_austin_yes_monotonic.*
+	@del $(MAKEDIR)\test_time_jumps_austin_no_generic_shared.* & \
+	@del $(MAKEDIR)\test_time_jumps_austin_yes_generic_shared.*
 
 orig-no: test_time_jumps.cpp
 	$(CLEAN_ORIG) & \
-	@del $(MAKEDIR)\test_time_jumps_orig_no_monotonic.* & \
+	@del $(MAKEDIR)\test_time_jumps_orig_no_generic_shared.* & \
 	cd $(BOOST_ORIG_DIR) & $(BUILD_BOOST) stage & \
-	cd $(MAKEDIR) & $(COMPILE_ORIG_NO) /out:test_time_jumps_orig_no_monotonic.exe & \
+	cd $(MAKEDIR) & $(COMPILE_ORIG_NO) /out:test_time_jumps_orig_no_generic_shared.exe & \
 	$(CLEAN_ORIG)
 
 orig-yes: test_time_jumps.cpp
 	$(CLEAN_ORIG) & \
-	@del $(MAKEDIR)\test_time_jumps_orig_yes_monotonic.* & \
-	cd $(BOOST_ORIG_DIR) & $(BUILD_BOOST) cxxflags=-DBOOST_THREAD_HAS_CONDATTR_SET_CLOCK_MONOTONIC stage & \
-	cd $(MAKEDIR) & $(COMPILE_ORIG_YES) /out:test_time_jumps_orig_yes_monotonic.exe & \
+	@del $(MAKEDIR)\test_time_jumps_orig_yes_generic_shared.* & \
+	cd $(BOOST_ORIG_DIR) & $(BUILD_BOOST) cxxflags=-DBOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSIONS stage & \
+	cd $(MAKEDIR) & $(COMPILE_ORIG_YES) /out:test_time_jumps_orig_yes_generic_shared.exe & \
 	$(CLEAN_ORIG)
 
 fixed-no: test_time_jumps.cpp
 	$(CLEAN_FIXED) & \
-	@del $(MAKEDIR)\test_time_jumps_fixed_no_monotonic.* & \
+	@del $(MAKEDIR)\test_time_jumps_fixed_no_generic_shared.* & \
 	cd $(BOOST_FIXED_DIR) & $(BUILD_BOOST) stage & \
-	cd $(MAKEDIR) & $(COMPILE_FIXED_NO) /out:test_time_jumps_fixed_no_monotonic.exe & \
+	cd $(MAKEDIR) & $(COMPILE_FIXED_NO) /out:test_time_jumps_fixed_no_generic_shared.exe & \
 	$(CLEAN_FIXED)
 
 fixed-yes: test_time_jumps.cpp
 	$(CLEAN_FIXED) & \
-	@del $(MAKEDIR)\test_time_jumps_fixed_yes_monotonic.* & \
-	cd $(BOOST_FIXED_DIR) & $(BUILD_BOOST) cxxflags=-DBOOST_THREAD_HAS_CONDATTR_SET_CLOCK_MONOTONIC stage & \
-	cd $(MAKEDIR) & $(COMPILE_FIXED_YES) /out:test_time_jumps_fixed_yes_monotonic.exe & \
+	@del $(MAKEDIR)\test_time_jumps_fixed_yes_generic_shared.* & \
+	cd $(BOOST_FIXED_DIR) & $(BUILD_BOOST) cxxflags=-DBOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSIONS stage & \
+	cd $(MAKEDIR) & $(COMPILE_FIXED_YES) /out:test_time_jumps_fixed_yes_generic_shared.exe & \
 	$(CLEAN_FIXED)
 
 austin-no: test_time_jumps.cpp
 	$(CLEAN_AUSTIN) & \
-	@del $(MAKEDIR)\test_time_jumps_austin_no_monotonic.* & \
+	@del $(MAKEDIR)\test_time_jumps_austin_no_generic_shared.* & \
 	cd $(BOOST_AUSTIN_DIR) & $(BUILD_BOOST) stage & \
-	cd $(MAKEDIR) & $(COMPILE_AUSTIN_NO) /out:test_time_jumps_austin_no_monotonic.exe & \
+	cd $(MAKEDIR) & $(COMPILE_AUSTIN_NO) /out:test_time_jumps_austin_no_generic_shared.exe & \
 	$(CLEAN_AUSTIN)
 
 austin-yes: test_time_jumps.cpp
 	$(CLEAN_AUSTIN) & \
-	@del $(MAKEDIR)\test_time_jumps_austin_yes_monotonic.* & \
-	cd $(BOOST_AUSTIN_DIR) & $(BUILD_BOOST) cxxflags=-DBOOST_THREAD_HAS_CONDATTR_SET_CLOCK_MONOTONIC stage & \
-	cd $(MAKEDIR) & $(COMPILE_AUSTIN_YES) /out:test_time_jumps_austin_yes_monotonic.exe & \
+	@del $(MAKEDIR)\test_time_jumps_austin_yes_generic_shared.* & \
+	cd $(BOOST_AUSTIN_DIR) & $(BUILD_BOOST) cxxflags=-DBOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSIONS stage & \
+	cd $(MAKEDIR) & $(COMPILE_AUSTIN_YES) /out:test_time_jumps_austin_yes_generic_shared.exe & \
 	$(CLEAN_AUSTIN)
