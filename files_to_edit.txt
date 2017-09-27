@@ -16,5 +16,6 @@ include/boost/thread/win32/basic_timed_mutex.hpp
 include/boost/thread/win32/condition_variable.hpp
 include/boost/thread/win32/shared_mutex.hpp
 include/boost/thread/win32/thread_data.hpp
+include/boost/thread/win32/thread_primitives.hpp
 src/pthread/thread.cpp
 src/win32/thread.cpp

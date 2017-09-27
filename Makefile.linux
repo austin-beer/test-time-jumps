@@ -46,8 +46,7 @@ CLEAN_AUSTIN = rm -rf $(BOOST_AUSTIN_DIR)/dist && \
                rm -rf $(BOOST_AUSTIN_DIR)/stage && \
                rm -rf $(BOOST_AUSTIN_DIR)/libs/config/checks/architecture/bin
 
-# Don't build the "austin" version by default.
-all: orig fixed
+all: orig fixed austin
 
 clean: clean-orig clean-fixed clean-austin
 
