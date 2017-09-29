@@ -101,11 +101,11 @@ namespace custom
 
 //******************************************************************************
 
-template <typename MutexType = boost::mutex, typename TestType = boost::condition_variable>
+template <typename MutexType = boost::mutex, typename CondType = boost::condition_variable>
 struct BoostHelper
 {
     typedef MutexType mutex;
-    typedef TestType test_var; // may be condition variable or future
+    typedef CondType cond;
 
     typedef boost::lock_guard<MutexType> lock_guard;
     typedef boost::unique_lock<MutexType> unique_lock;
@@ -125,6 +125,8 @@ struct BoostHelper
     typedef boost::future_status future_status;
 
     typedef boost::packaged_task<bool> packaged_task;
+    typedef boost::future<bool> future;
+    typedef boost::shared_future<bool> shared_future;
 
     typedef boost::thread thread;
 
@@ -181,16 +183,16 @@ struct BoostHelper
     }
 };
 
-template <typename MutexType, typename TestType>
-const typename BoostHelper<MutexType, TestType>::milliseconds
-BoostHelper<MutexType, TestType>::dur = typename BoostHelper<MutexType, TestType>::milliseconds(s_waitMs);
+template <typename MutexType, typename CondType>
+const typename BoostHelper<MutexType, CondType>::milliseconds
+BoostHelper<MutexType, CondType>::dur = typename BoostHelper<MutexType, CondType>::milliseconds(s_waitMs);
 
 #ifdef CPP14_ENABLED
-template <typename MutexType = std::mutex, typename TestType = std::condition_variable>
+template <typename MutexType = std::mutex, typename CondType = std::condition_variable>
 struct StdHelper
 {
     typedef MutexType mutex;
-    typedef TestType test_var; // may be condition variable or future
+    typedef CondType cond;
 
     typedef std::lock_guard<MutexType> lock_guard;
     typedef std::unique_lock<MutexType> unique_lock;
@@ -210,6 +212,8 @@ struct StdHelper
     typedef std::future_status future_status;
 
     typedef std::packaged_task<bool()> packaged_task;
+    typedef std::future<bool> future;
+    typedef std::shared_future<bool> shared_future;
 
     typedef std::thread thread;
 
@@ -254,9 +258,9 @@ struct StdHelper
     }
 };
 
-template <typename MutexType, typename TestType>
-const typename StdHelper<MutexType, TestType>::milliseconds
-StdHelper<MutexType, TestType>::dur = typename StdHelper<MutexType, TestType>::milliseconds(s_waitMs);
+template <typename MutexType, typename CondType>
+const typename StdHelper<MutexType, CondType>::milliseconds
+StdHelper<MutexType, CondType>::dur = typename StdHelper<MutexType, CondType>::milliseconds(s_waitMs);
 #endif
 
 //******************************************************************************
@@ -384,110 +388,123 @@ bool returnFalse()
 
 //******************************************************************************
 
-// Run the test in the current thread context.
-template <typename Helper, void (*Function)(const long long)>
-void runTestNoThread(const std::string name)
+// Run the test in the context provided, which may be the current thread or a separate thread.
+template <typename Helper, typename Context, typename Function>
+void runTestInContext(Context context, Function func, const std::string name)
 {
     std::cout << name << ":" << std::endl;
 
     {
         std::cout << "    While system clock remains stable:        ";
-        Function(0);
+        context(func, 0);
     }
 
     {
         std::cout << "    While system clock jumps back (short):    ";
         typename Helper::thread t(boost::bind(changeSystemTime, -s_shortJumpMs));
-        Function(-s_shortJumpMs);
+        context(func, -s_shortJumpMs);
         t.join();
     }
 
     {
         std::cout << "    While system clock jumps back (long):     ";
         typename Helper::thread t(boost::bind(changeSystemTime, -s_longJumpMs));
-        Function(-s_longJumpMs);
+        context(func, -s_longJumpMs);
         t.join();
     }
 
     {
         std::cout << "    While system clock jumps forward (short): ";
         typename Helper::thread t(boost::bind(changeSystemTime, s_shortJumpMs));
-        Function(s_shortJumpMs);
+        context(func, s_shortJumpMs);
         t.join();
     }
 
     {
         std::cout << "    While system clock jumps forward (long):  ";
         typename Helper::thread t(boost::bind(changeSystemTime, s_longJumpMs));
-        Function(s_longJumpMs);
+        context(func, s_longJumpMs);
         t.join();
     }
 }
 
 //--------------------------------------
 
-template <typename Helper, void (*Function)(const long long)>
-void wrapInThread(const long long jumpMs)
+template <typename Helper, typename Function>
+void noThreadContext(Function func, const long long jumpMs)
 {
-    typename Helper::thread t(boost::bind(Function, jumpMs));
+    func(jumpMs);
+}
+
+template <typename Helper, typename Function>
+void threadContextWithNone(Function func, const long long jumpMs)
+{
+    typename Helper::thread t(boost::bind(func, jumpMs));
     t.join();
 }
 
-template <typename Helper, void (*Function)(typename Helper::mutex&, const long long)>
-void wrapInThread(const long long jumpMs)
+template <typename Helper, typename Function>
+void threadContextWithUnique(Function func, const long long jumpMs)
 {
     typename Helper::mutex m;
     typename Helper::lock_guard g(m);
-    typename Helper::thread t(boost::bind(Function, boost::ref(m), jumpMs));
+    typename Helper::thread t(boost::bind(func, boost::ref(m), jumpMs));
     t.join();
 }
 
-template <typename Helper, void (*Function)(typename Helper::mutex&, const long long)>
-void wrapInThreadShared(const long long jumpMs)
+template <typename Helper, typename Function>
+void threadContextWithShared(Function func, const long long jumpMs)
 {
     typename Helper::mutex m;
     boost::shared_lock_guard<typename Helper::mutex> g(m);
-    typename Helper::thread t(boost::bind(Function, boost::ref(m), jumpMs));
+    typename Helper::thread t(boost::bind(func, boost::ref(m), jumpMs));
     t.join();
 }
 
-template <typename Helper, void (*Function)(typename Helper::mutex&, const long long)>
-void wrapInThreadUpgrade(const long long jumpMs)
+template <typename Helper, typename Function>
+void threadContextWithUpgrade(Function func, const long long jumpMs)
 {
     typename Helper::mutex m;
     boost::upgrade_lock<typename Helper::mutex> g(m);
-    typename Helper::thread t(boost::bind(Function, boost::ref(m), jumpMs));
+    typename Helper::thread t(boost::bind(func, boost::ref(m), jumpMs));
     t.join();
 }
 
 //--------------------------------------
 
-// Run the test in a separate thread.
-template <typename Helper, void (*Function)(const long long)>
-void runTest(const std::string name)
+// Run the test in the current thread.
+template <typename Helper, typename Function>
+void runTest(Function func, const std::string name)
 {
-    runTestNoThread<Helper, wrapInThread<Helper, Function> >(name);
+    runTestInContext<Helper>(noThreadContext<Helper, Function>, func, name);
+}
+
+// Run the test in a separate thread.
+template <typename Helper, typename Function>
+void runTestWithNone(Function func, const std::string name)
+{
+    runTestInContext<Helper>(threadContextWithNone<Helper, Function>, func, name);
 }
 
 // Run the test in a separate thread. Pass a locked mutex to the function under test.
-template <typename Helper, void (*Function)(typename Helper::mutex&, const long long)>
-void runTest(const std::string name)
+template <typename Helper, typename Function>
+void runTestWithUnique(Function func, const std::string name)
 {
-    runTestNoThread<Helper, wrapInThread<Helper, Function> >(name);
+    runTestInContext<Helper>(threadContextWithUnique<Helper, Function>, func, name);
 }
 
 // Run the test in a separate thread. Pass a shared-locked mutex to the function under test.
-template <typename Helper, void (*Function)(typename Helper::mutex&, const long long)>
-void runTestShared(const std::string name)
+template <typename Helper, typename Function>
+void runTestWithShared(Function func, const std::string name)
 {
-    runTestNoThread<Helper, wrapInThreadShared<Helper, Function> >(name);
+    runTestInContext<Helper>(threadContextWithShared<Helper, Function>, func, name);
 }
 
 // Run the test in a separate thread. Pass an upgrade-locked mutex to the function under test.
-template <typename Helper, void (*Function)(typename Helper::mutex&, const long long)>
-void runTestUpgrade(const std::string name)
+template <typename Helper, typename Function>
+void runTestWithUpgrade(Function func, const std::string name)
 {
-    runTestNoThread<Helper, wrapInThreadUpgrade<Helper, Function> >(name);
+    runTestInContext<Helper>(threadContextWithUpgrade<Helper, Function>, func, name);
 }
 
 //******************************************************************************
@@ -573,10 +590,10 @@ template <typename Helper>
 void testSleepStd(const std::string& name)
 {
     std::cout << std::endl;
-    runTest<Helper, testSleepFor        <Helper> >(name + "::this_thread::sleep_for()");
-    runTest<Helper, testSleepUntilSteady<Helper> >(name + "::this_thread::sleep_until(), steady time");
-    runTest<Helper, testSleepUntilSystem<Helper> >(name + "::this_thread::sleep_until(), system time");
-    runTest<Helper, testSleepUntilCustom<Helper> >(name + "::this_thread::sleep_until(), custom time");
+    runTestWithNone<Helper>(testSleepFor        <Helper>, name + "::this_thread::sleep_for()");
+    runTestWithNone<Helper>(testSleepUntilSteady<Helper>, name + "::this_thread::sleep_until(), steady time");
+    runTestWithNone<Helper>(testSleepUntilSystem<Helper>, name + "::this_thread::sleep_until(), system time");
+    runTestWithNone<Helper>(testSleepUntilCustom<Helper>, name + "::this_thread::sleep_until(), custom time");
 }
 
 template <typename Helper>
@@ -585,18 +602,18 @@ void testSleepBoost(const std::string& name)
     testSleepStd<Helper>(name);
 
     // Boost-only functions
-    runTest<Helper, testSleepDur   <Helper> >(name + "::this_thread::sleep(), posix duration");
-    runTest<Helper, testSleepSystem<Helper> >(name + "::this_thread::sleep(), posix system time");
+    runTestWithNone<Helper>(testSleepDur   <Helper>, name + "::this_thread::sleep(), posix duration");
+    runTestWithNone<Helper>(testSleepSystem<Helper>, name + "::this_thread::sleep(), posix system time");
 }
 
 template <typename Helper>
 void testSleepNoThreadStd(const std::string& name)
 {
     std::cout << std::endl;
-    runTestNoThread<Helper, testSleepFor        <Helper> >(name + "::this_thread::sleep_for(), no thread");
-    runTestNoThread<Helper, testSleepUntilSteady<Helper> >(name + "::this_thread::sleep_until(), no thread, steady time");
-    runTestNoThread<Helper, testSleepUntilSystem<Helper> >(name + "::this_thread::sleep_until(), no thread, system time");
-    runTestNoThread<Helper, testSleepUntilCustom<Helper> >(name + "::this_thread::sleep_until(), no thread, custom time");
+    runTest<Helper>(testSleepFor        <Helper>, name + "::this_thread::sleep_for(), no thread");
+    runTest<Helper>(testSleepUntilSteady<Helper>, name + "::this_thread::sleep_until(), no thread, steady time");
+    runTest<Helper>(testSleepUntilSystem<Helper>, name + "::this_thread::sleep_until(), no thread, system time");
+    runTest<Helper>(testSleepUntilCustom<Helper>, name + "::this_thread::sleep_until(), no thread, custom time");
 }
 
 template <typename Helper>
@@ -605,8 +622,8 @@ void testSleepNoThreadBoost(const std::string& name)
     testSleepNoThreadStd<Helper>(name);
 
     // Boost-only functions
-    runTestNoThread<Helper, testSleepDur   <Helper> >(name + "::this_thread::sleep(), no thread, posix duration");
-    runTestNoThread<Helper, testSleepSystem<Helper> >(name + "::this_thread::sleep(), no thread, posix system time");
+    runTest<Helper>(testSleepDur   <Helper>, name + "::this_thread::sleep(), no thread, posix duration");
+    runTest<Helper>(testSleepSystem<Helper>, name + "::this_thread::sleep(), no thread, posix system time");
 }
 
 //******************************************************************************
@@ -699,15 +716,15 @@ template <typename Helper>
 void testSleepNoIntBoost(const std::string& name)
 {
     std::cout << std::endl;
-    runTest<Helper, testSleepForNoInt        <Helper> >(name + "::this_thread::no_interruption_point::sleep_for()");
-    runTest<Helper, testSleepUntilNoIntSteady<Helper> >(name + "::this_thread::no_interruption_point::sleep_until(), steady time");
-    runTest<Helper, testSleepUntilNoIntSystem<Helper> >(name + "::this_thread::no_interruption_point::sleep_until(), system time");
-    runTest<Helper, testSleepUntilNoIntCustom<Helper> >(name + "::this_thread::no_interruption_point::sleep_until(), custom time");
+    runTestWithNone<Helper>(testSleepForNoInt        <Helper>, name + "::this_thread::no_interruption_point::sleep_for()");
+    runTestWithNone<Helper>(testSleepUntilNoIntSteady<Helper>, name + "::this_thread::no_interruption_point::sleep_until(), steady time");
+    runTestWithNone<Helper>(testSleepUntilNoIntSystem<Helper>, name + "::this_thread::no_interruption_point::sleep_until(), system time");
+    runTestWithNone<Helper>(testSleepUntilNoIntCustom<Helper>, name + "::this_thread::no_interruption_point::sleep_until(), custom time");
 
 // The following functions are not implemented on Linux.
 #ifdef _WIN32
-    runTest<Helper, testSleepNoIntDur   <Helper> >(name + "::this_thread::no_interruption_point::sleep(), posix duration");
-    runTest<Helper, testSleepNoIntSystem<Helper> >(name + "::this_thread::no_interruption_point::sleep(), posix system time");
+    runTestWithNone<Helper>(testSleepNoIntDur   <Helper>, name + "::this_thread::no_interruption_point::sleep(), posix duration");
+    runTestWithNone<Helper>(testSleepNoIntSystem<Helper>, name + "::this_thread::no_interruption_point::sleep(), posix system time");
 #endif
 }
 
@@ -715,15 +732,15 @@ template <typename Helper>
 void testSleepNoThreadNoIntBoost(const std::string& name)
 {
     std::cout << std::endl;
-    runTestNoThread<Helper, testSleepForNoInt        <Helper> >(name + "::this_thread::no_interruption_point::sleep_for(), no thread");
-    runTestNoThread<Helper, testSleepUntilNoIntSteady<Helper> >(name + "::this_thread::no_interruption_point::sleep_until(), no thread, steady time");
-    runTestNoThread<Helper, testSleepUntilNoIntSystem<Helper> >(name + "::this_thread::no_interruption_point::sleep_until(), no thread, system time");
-    runTestNoThread<Helper, testSleepUntilNoIntCustom<Helper> >(name + "::this_thread::no_interruption_point::sleep_until(), no thread, custom time");
+    runTest<Helper>(testSleepForNoInt        <Helper>, name + "::this_thread::no_interruption_point::sleep_for(), no thread");
+    runTest<Helper>(testSleepUntilNoIntSteady<Helper>, name + "::this_thread::no_interruption_point::sleep_until(), no thread, steady time");
+    runTest<Helper>(testSleepUntilNoIntSystem<Helper>, name + "::this_thread::no_interruption_point::sleep_until(), no thread, system time");
+    runTest<Helper>(testSleepUntilNoIntCustom<Helper>, name + "::this_thread::no_interruption_point::sleep_until(), no thread, custom time");
 
 // The following functions are not implemented on Linux.
 #ifdef _WIN32
-    runTestNoThread<Helper, testSleepNoIntDur   <Helper> >(name + "::this_thread::no_interruption_point::sleep(), no thread, posix duration");
-    runTestNoThread<Helper, testSleepNoIntSystem<Helper> >(name + "::this_thread::no_interruption_point::sleep(), no thread, posix system time");
+    runTest<Helper>(testSleepNoIntDur   <Helper>, name + "::this_thread::no_interruption_point::sleep(), no thread, posix duration");
+    runTest<Helper>(testSleepNoIntSystem<Helper>, name + "::this_thread::no_interruption_point::sleep(), no thread, posix system time");
 #endif
 }
 
@@ -818,12 +835,12 @@ template <typename Helper>
 void testJoinBoost(const std::string& name)
 {
     std::cout << std::endl;
-    runTest<Helper, testTryJoinFor        <Helper> >(name + "::thread::try_join_for()");
-    runTest<Helper, testTryJoinUntilSteady<Helper> >(name + "::thread::try_join_until(), steady time");
-    runTest<Helper, testTryJoinUntilSystem<Helper> >(name + "::thread::try_join_until(), system time");
-    runTest<Helper, testTryJoinUntilCustom<Helper> >(name + "::thread::try_join_until(), custom time");
-    runTest<Helper, testTimedJoinDur      <Helper> >(name + "::thread::timed_join(), posix duration");
-    runTest<Helper, testTimedJoinSystem   <Helper> >(name + "::thread::timed_join(), posix system time");
+    runTestWithNone<Helper>(testTryJoinFor        <Helper>, name + "::thread::try_join_for()");
+    runTestWithNone<Helper>(testTryJoinUntilSteady<Helper>, name + "::thread::try_join_until(), steady time");
+    runTestWithNone<Helper>(testTryJoinUntilSystem<Helper>, name + "::thread::try_join_until(), system time");
+    runTestWithNone<Helper>(testTryJoinUntilCustom<Helper>, name + "::thread::try_join_until(), custom time");
+    runTestWithNone<Helper>(testTimedJoinDur      <Helper>, name + "::thread::timed_join(), posix duration");
+    runTestWithNone<Helper>(testTimedJoinSystem   <Helper>, name + "::thread::timed_join(), posix system time");
 }
 
 //******************************************************************************
@@ -833,7 +850,7 @@ void testJoinBoost(const std::string& name)
 template <typename Helper>
 void testCondVarWaitFor(const long long jumpMs)
 {
-    typename Helper::test_var cv;
+    typename Helper::cond cv;
     typename Helper::mutex m;
     typename Helper::unique_lock g(m);
 
@@ -847,7 +864,7 @@ void testCondVarWaitFor(const long long jumpMs)
 template <typename Helper>
 void testCondVarWaitUntilSteady(const long long jumpMs)
 {
-    typename Helper::test_var cv;
+    typename Helper::cond cv;
     typename Helper::mutex m;
     typename Helper::unique_lock g(m);
 
@@ -861,7 +878,7 @@ void testCondVarWaitUntilSteady(const long long jumpMs)
 template <typename Helper>
 void testCondVarWaitUntilSystem(const long long jumpMs)
 {
-    typename Helper::test_var cv;
+    typename Helper::cond cv;
     typename Helper::mutex m;
     typename Helper::unique_lock g(m);
 
@@ -875,7 +892,7 @@ void testCondVarWaitUntilSystem(const long long jumpMs)
 template <typename Helper>
 void testCondVarWaitUntilCustom(const long long jumpMs)
 {
-    typename Helper::test_var cv;
+    typename Helper::cond cv;
     typename Helper::mutex m;
     typename Helper::unique_lock g(m);
 
@@ -892,7 +909,7 @@ template <typename Helper>
 void testCondVarTimedWaitDur(const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
-    typename Helper::test_var cv;
+    typename Helper::cond cv;
     typename Helper::mutex m;
     typename Helper::unique_lock g(m);
 
@@ -911,7 +928,7 @@ template <typename Helper>
 void testCondVarTimedWaitSystem(const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
-    typename Helper::test_var cv;
+    typename Helper::cond cv;
     typename Helper::mutex m;
     typename Helper::unique_lock g(m);
 
@@ -933,10 +950,10 @@ template <typename Helper>
 void testCondVarStd(const std::string& name)
 {
     std::cout << std::endl;
-    runTest<Helper, testCondVarWaitFor        <Helper> >(name + "::wait_for()");
-    runTest<Helper, testCondVarWaitUntilSteady<Helper> >(name + "::wait_until(), steady time");
-    runTest<Helper, testCondVarWaitUntilSystem<Helper> >(name + "::wait_until(), system time");
-    runTest<Helper, testCondVarWaitUntilCustom<Helper> >(name + "::wait_until(), custom time");
+    runTestWithNone<Helper>(testCondVarWaitFor        <Helper>, name + "::wait_for()");
+    runTestWithNone<Helper>(testCondVarWaitUntilSteady<Helper>, name + "::wait_until(), steady time");
+    runTestWithNone<Helper>(testCondVarWaitUntilSystem<Helper>, name + "::wait_until(), system time");
+    runTestWithNone<Helper>(testCondVarWaitUntilCustom<Helper>, name + "::wait_until(), custom time");
 }
 
 template <typename Helper>
@@ -945,8 +962,8 @@ void testCondVarBoost(const std::string& name)
     testCondVarStd<Helper>(name);
 
     // Boost-only functions
-    runTest<Helper, testCondVarTimedWaitDur   <Helper> >(name + "::timed_wait(), posix duration");
-    runTest<Helper, testCondVarTimedWaitSystem<Helper> >(name + "::timed_wait(), posix system time");
+    runTestWithNone<Helper>(testCondVarTimedWaitDur   <Helper>, name + "::timed_wait(), posix duration");
+    runTestWithNone<Helper>(testCondVarTimedWaitSystem<Helper>, name + "::timed_wait(), posix system time");
 }
 
 //******************************************************************************
@@ -956,7 +973,7 @@ void testCondVarBoost(const std::string& name)
 template <typename Helper>
 void testCondVarWaitForPred(const long long jumpMs)
 {
-    typename Helper::test_var cv;
+    typename Helper::cond cv;
     typename Helper::mutex m;
     typename Helper::unique_lock g(m);
 
@@ -970,7 +987,7 @@ void testCondVarWaitForPred(const long long jumpMs)
 template <typename Helper>
 void testCondVarWaitUntilPredSteady(const long long jumpMs)
 {
-    typename Helper::test_var cv;
+    typename Helper::cond cv;
     typename Helper::mutex m;
     typename Helper::unique_lock g(m);
 
@@ -984,7 +1001,7 @@ void testCondVarWaitUntilPredSteady(const long long jumpMs)
 template <typename Helper>
 void testCondVarWaitUntilPredSystem(const long long jumpMs)
 {
-    typename Helper::test_var cv;
+    typename Helper::cond cv;
     typename Helper::mutex m;
     typename Helper::unique_lock g(m);
 
@@ -998,7 +1015,7 @@ void testCondVarWaitUntilPredSystem(const long long jumpMs)
 template <typename Helper>
 void testCondVarWaitUntilPredCustom(const long long jumpMs)
 {
-    typename Helper::test_var cv;
+    typename Helper::cond cv;
     typename Helper::mutex m;
     typename Helper::unique_lock g(m);
 
@@ -1015,7 +1032,7 @@ template <typename Helper>
 void testCondVarTimedWaitPredDur(const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
-    typename Helper::test_var cv;
+    typename Helper::cond cv;
     typename Helper::mutex m;
     typename Helper::unique_lock g(m);
 
@@ -1034,7 +1051,7 @@ template <typename Helper>
 void testCondVarTimedWaitPredSystem(const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
-    typename Helper::test_var cv;
+    typename Helper::cond cv;
     typename Helper::mutex m;
     typename Helper::unique_lock g(m);
 
@@ -1056,10 +1073,10 @@ template <typename Helper>
 void testCondVarPredStd(const std::string& name)
 {
     std::cout << std::endl;
-    runTest<Helper, testCondVarWaitForPred        <Helper> >(name + "::wait_for(), with predicate");
-    runTest<Helper, testCondVarWaitUntilPredSteady<Helper> >(name + "::wait_until(), with predicate, steady time");
-    runTest<Helper, testCondVarWaitUntilPredSystem<Helper> >(name + "::wait_until(), with predicate, system time");
-    runTest<Helper, testCondVarWaitUntilPredCustom<Helper> >(name + "::wait_until(), with predicate, custom time");
+    runTestWithNone<Helper>(testCondVarWaitForPred        <Helper>, name + "::wait_for(), with predicate");
+    runTestWithNone<Helper>(testCondVarWaitUntilPredSteady<Helper>, name + "::wait_until(), with predicate, steady time");
+    runTestWithNone<Helper>(testCondVarWaitUntilPredSystem<Helper>, name + "::wait_until(), with predicate, system time");
+    runTestWithNone<Helper>(testCondVarWaitUntilPredCustom<Helper>, name + "::wait_until(), with predicate, custom time");
 }
 
 template <typename Helper>
@@ -1068,8 +1085,8 @@ void testCondVarPredBoost(const std::string& name)
     testCondVarPredStd<Helper>(name);
 
     // Boost-only functions
-    runTest<Helper, testCondVarTimedWaitPredDur   <Helper> >(name + "::timed_wait(), with predicate, posix duration");
-    runTest<Helper, testCondVarTimedWaitPredSystem<Helper> >(name + "::timed_wait(), with predicate, posix system time");
+    runTestWithNone<Helper>(testCondVarTimedWaitPredDur   <Helper>, name + "::timed_wait(), with predicate, posix duration");
+    runTestWithNone<Helper>(testCondVarTimedWaitPredSystem<Helper>, name + "::timed_wait(), with predicate, posix system time");
 }
 
 //******************************************************************************
@@ -1155,10 +1172,10 @@ template <typename Helper>
 void testMutexStd(const std::string& name)
 {
     std::cout << std::endl;
-    runTest<Helper, testTryLockFor        <Helper> >(name + "::try_lock_for()");
-    runTest<Helper, testTryLockUntilSteady<Helper> >(name + "::try_lock_until(), steady time");
-    runTest<Helper, testTryLockUntilSystem<Helper> >(name + "::try_lock_until(), system time");
-    runTest<Helper, testTryLockUntilCustom<Helper> >(name + "::try_lock_until(), custom time");
+    runTestWithUnique<Helper>(testTryLockFor        <Helper>, name + "::try_lock_for()");
+    runTestWithUnique<Helper>(testTryLockUntilSteady<Helper>, name + "::try_lock_until(), steady time");
+    runTestWithUnique<Helper>(testTryLockUntilSystem<Helper>, name + "::try_lock_until(), system time");
+    runTestWithUnique<Helper>(testTryLockUntilCustom<Helper>, name + "::try_lock_until(), custom time");
 }
 
 template <typename Helper>
@@ -1167,8 +1184,8 @@ void testMutexBoost(const std::string& name)
     testMutexStd<Helper>(name);
 
     // Boost-only functions
-    runTest<Helper, testTimedLockDur   <Helper> >(name + "::timed_lock(), posix duration");
-    runTest<Helper, testTimedLockSystem<Helper> >(name + "::timed_lock(), posix system time");
+    runTestWithUnique<Helper>(testTimedLockDur   <Helper>, name + "::timed_lock(), posix duration");
+    runTestWithUnique<Helper>(testTimedLockSystem<Helper>, name + "::timed_lock(), posix system time");
 }
 
 //******************************************************************************
@@ -1254,10 +1271,10 @@ template <typename Helper>
 void testMutexSharedStd(const std::string& name)
 {
     std::cout << std::endl;
-    runTest<Helper, testTryLockSharedFor        <Helper> >(name + "::try_lock_shared_for()");
-    runTest<Helper, testTryLockSharedUntilSteady<Helper> >(name + "::try_lock_shared_until(), steady time");
-    runTest<Helper, testTryLockSharedUntilSystem<Helper> >(name + "::try_lock_shared_until(), system time");
-    runTest<Helper, testTryLockSharedUntilCustom<Helper> >(name + "::try_lock_shared_until(), custom time");
+    runTestWithUnique<Helper>(testTryLockSharedFor        <Helper>, name + "::try_lock_shared_for()");
+    runTestWithUnique<Helper>(testTryLockSharedUntilSteady<Helper>, name + "::try_lock_shared_until(), steady time");
+    runTestWithUnique<Helper>(testTryLockSharedUntilSystem<Helper>, name + "::try_lock_shared_until(), system time");
+    runTestWithUnique<Helper>(testTryLockSharedUntilCustom<Helper>, name + "::try_lock_shared_until(), custom time");
 }
 
 template <typename Helper>
@@ -1266,8 +1283,8 @@ void testMutexSharedBoost(const std::string& name)
     testMutexSharedStd<Helper>(name);
 
     // Boost-only functions
-    runTest<Helper, testTimedLockSharedDur   <Helper> >(name + "::timed_lock_shared(), posix duration");
-    runTest<Helper, testTimedLockSharedSystem<Helper> >(name + "::timed_lock_shared(), posix system time");
+    runTestWithUnique<Helper>(testTimedLockSharedDur   <Helper>, name + "::timed_lock_shared(), posix duration");
+    runTestWithUnique<Helper>(testTimedLockSharedSystem<Helper>, name + "::timed_lock_shared(), posix system time");
 }
 
 //******************************************************************************
@@ -1510,30 +1527,30 @@ void testMutexUpgradeBoost(const std::string& name)
 {
 #ifdef BOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSIONS
     std::cout << std::endl;
-    runTest<Helper, testTryLockUpgradeFor        <Helper> >(name + "::try_lock_upgrade_for()");
-    runTest<Helper, testTryLockUpgradeUntilSteady<Helper> >(name + "::try_lock_upgrade_until(), steady time");
-    runTest<Helper, testTryLockUpgradeUntilSystem<Helper> >(name + "::try_lock_upgrade_until(), system time");
-    runTest<Helper, testTryLockUpgradeUntilCustom<Helper> >(name + "::try_lock_upgrade_until(), custom time");
-    runTest<Helper, testTimedLockUpgradeDur      <Helper> >(name + "::timed_lock_upgrade(), posix duration");
-    runTest<Helper, testTimedLockUpgradeSystem   <Helper> >(name + "::timed_lock_upgrade(), posix system time");
+    runTestWithUnique<Helper>(testTryLockUpgradeFor        <Helper>, name + "::try_lock_upgrade_for()");
+    runTestWithUnique<Helper>(testTryLockUpgradeUntilSteady<Helper>, name + "::try_lock_upgrade_until(), steady time");
+    runTestWithUnique<Helper>(testTryLockUpgradeUntilSystem<Helper>, name + "::try_lock_upgrade_until(), system time");
+    runTestWithUnique<Helper>(testTryLockUpgradeUntilCustom<Helper>, name + "::try_lock_upgrade_until(), custom time");
+    runTestWithUnique<Helper>(testTimedLockUpgradeDur      <Helper>, name + "::timed_lock_upgrade(), posix duration");
+    runTestWithUnique<Helper>(testTimedLockUpgradeSystem   <Helper>, name + "::timed_lock_upgrade(), posix system time");
 
     std::cout << std::endl;
-    runTestShared<Helper, testTryUnlockSharedAndLockFor        <Helper> >(name + "::try_unlock_shared_and_lock_for()");
-    runTestShared<Helper, testTryUnlockSharedAndLockUntilSteady<Helper> >(name + "::try_unlock_shared_and_lock_until(), steady time");
-    runTestShared<Helper, testTryUnlockSharedAndLockUntilSystem<Helper> >(name + "::try_unlock_shared_and_lock_until(), system time");
-    runTestShared<Helper, testTryUnlockSharedAndLockUntilCustom<Helper> >(name + "::try_unlock_shared_and_lock_until(), custom time");
+    runTestWithShared<Helper>(testTryUnlockSharedAndLockFor        <Helper>, name + "::try_unlock_shared_and_lock_for()");
+    runTestWithShared<Helper>(testTryUnlockSharedAndLockUntilSteady<Helper>, name + "::try_unlock_shared_and_lock_until(), steady time");
+    runTestWithShared<Helper>(testTryUnlockSharedAndLockUntilSystem<Helper>, name + "::try_unlock_shared_and_lock_until(), system time");
+    runTestWithShared<Helper>(testTryUnlockSharedAndLockUntilCustom<Helper>, name + "::try_unlock_shared_and_lock_until(), custom time");
 
     std::cout << std::endl;
-    runTestShared<Helper, testTryUnlockUpgradeAndLockFor        <Helper> >(name + "::try_unlock_upgrade_and_lock_for()");
-    runTestShared<Helper, testTryUnlockUpgradeAndLockUntilSteady<Helper> >(name + "::try_unlock_upgrade_and_lock_until(), steady time");
-    runTestShared<Helper, testTryUnlockUpgradeAndLockUntilSystem<Helper> >(name + "::try_unlock_upgrade_and_lock_until(), system time");
-    runTestShared<Helper, testTryUnlockUpgradeAndLockUntilCustom<Helper> >(name + "::try_unlock_upgrade_and_lock_until(), custom time");
+    runTestWithShared<Helper>(testTryUnlockUpgradeAndLockFor        <Helper>, name + "::try_unlock_upgrade_and_lock_for()");
+    runTestWithShared<Helper>(testTryUnlockUpgradeAndLockUntilSteady<Helper>, name + "::try_unlock_upgrade_and_lock_until(), steady time");
+    runTestWithShared<Helper>(testTryUnlockUpgradeAndLockUntilSystem<Helper>, name + "::try_unlock_upgrade_and_lock_until(), system time");
+    runTestWithShared<Helper>(testTryUnlockUpgradeAndLockUntilCustom<Helper>, name + "::try_unlock_upgrade_and_lock_until(), custom time");
 
     std::cout << std::endl;
-    runTestUpgrade<Helper, testTryUnlockSharedAndLockFor        <Helper> >(name + "::try_unlock_shared_and_lock_upgrade_for()");
-    runTestUpgrade<Helper, testTryUnlockSharedAndLockUntilSteady<Helper> >(name + "::try_unlock_shared_and_lock_upgrade_until(), steady time");
-    runTestUpgrade<Helper, testTryUnlockSharedAndLockUntilSystem<Helper> >(name + "::try_unlock_shared_and_lock_upgrade_until(), system time");
-    runTestUpgrade<Helper, testTryUnlockSharedAndLockUntilCustom<Helper> >(name + "::try_unlock_shared_and_lock_upgrade_until(), custom time");
+    runTestWithUpgrade<Helper>(testTryUnlockSharedAndLockFor        <Helper>, name + "::try_unlock_shared_and_lock_upgrade_for()");
+    runTestWithUpgrade<Helper>(testTryUnlockSharedAndLockUntilSteady<Helper>, name + "::try_unlock_shared_and_lock_upgrade_until(), steady time");
+    runTestWithUpgrade<Helper>(testTryUnlockSharedAndLockUntilSystem<Helper>, name + "::try_unlock_shared_and_lock_upgrade_until(), system time");
+    runTestWithUpgrade<Helper>(testTryUnlockSharedAndLockUntilCustom<Helper>, name + "::try_unlock_shared_and_lock_upgrade_until(), custom time");
 #endif
 }
 
@@ -1545,7 +1562,7 @@ template <typename Helper>
 void testFutureWaitFor(const long long jumpMs)
 {
     typename Helper::packaged_task pt(returnFalse);
-    typename Helper::test_var f = pt.get_future();
+    typename Helper::future f = pt.get_future();
 
     typename Helper::steady_time_point before(Helper::steadyNow());
     bool noTimeout = (f.wait_for(Helper::dur) == Helper::future_status::ready);
@@ -1558,7 +1575,7 @@ template <typename Helper>
 void testFutureWaitUntilSteady(const long long jumpMs)
 {
     typename Helper::packaged_task pt(returnFalse);
-    typename Helper::test_var f = pt.get_future();
+    typename Helper::future f = pt.get_future();
 
     typename Helper::steady_time_point before(Helper::steadyNow());
     bool noTimeout = (f.wait_until(Helper::steadyNow() + Helper::dur) == Helper::future_status::ready);
@@ -1571,7 +1588,7 @@ template <typename Helper>
 void testFutureWaitUntilSystem(const long long jumpMs)
 {
     typename Helper::packaged_task pt(returnFalse);
-    typename Helper::test_var f = pt.get_future();
+    typename Helper::future f = pt.get_future();
 
     typename Helper::steady_time_point before(Helper::steadyNow());
     bool noTimeout = (f.wait_until(Helper::systemNow() + Helper::dur) == Helper::future_status::ready);
@@ -1584,7 +1601,7 @@ template <typename Helper>
 void testFutureWaitUntilCustom(const long long jumpMs)
 {
     typename Helper::packaged_task pt(returnFalse);
-    typename Helper::test_var f = pt.get_future();
+    typename Helper::future f = pt.get_future();
 
     typename Helper::steady_time_point before(Helper::steadyNow());
     bool noTimeout = (f.wait_until(Helper::customNow() + Helper::dur) == Helper::future_status::ready);
@@ -1600,7 +1617,7 @@ void testFutureTimedWaitDur(const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::packaged_task pt(returnFalse);
-    typename Helper::test_var f = pt.get_future();
+    typename Helper::future f = pt.get_future();
 
     typename Helper::steady_time_point before(Helper::steadyNow());
     boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::dur).count());
@@ -1618,7 +1635,7 @@ void testFutureTimedWaitSystem(const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::packaged_task pt(returnFalse);
-    typename Helper::test_var f = pt.get_future();
+    typename Helper::future f = pt.get_future();
 
     typename Helper::steady_time_point before(Helper::steadyNow());
     boost::posix_time::ptime ptNow(boost::posix_time::microsec_clock::universal_time());
@@ -1638,10 +1655,10 @@ template <typename Helper>
 void testFutureStd(const std::string& name)
 {
     std::cout << std::endl;
-    runTest<Helper, testFutureWaitFor        <Helper> >(name + "::wait_for()");
-    runTest<Helper, testFutureWaitUntilSteady<Helper> >(name + "::wait_until(), steady time");
-    runTest<Helper, testFutureWaitUntilSystem<Helper> >(name + "::wait_until(), system time");
-    runTest<Helper, testFutureWaitUntilCustom<Helper> >(name + "::wait_until(), custom time");
+    runTestWithNone<Helper>(testFutureWaitFor        <Helper>, name + "::wait_for()");
+    runTestWithNone<Helper>(testFutureWaitUntilSteady<Helper>, name + "::wait_until(), steady time");
+    runTestWithNone<Helper>(testFutureWaitUntilSystem<Helper>, name + "::wait_until(), system time");
+    runTestWithNone<Helper>(testFutureWaitUntilCustom<Helper>, name + "::wait_until(), custom time");
 }
 
 template <typename Helper>
@@ -1650,8 +1667,131 @@ void testFutureBoost(const std::string& name)
     testFutureStd<Helper>(name);
 
     // Boost-only functions
-    runTest<Helper, testFutureTimedWaitDur   <Helper> >(name + "::timed_wait(), posix duration");
-    runTest<Helper, testFutureTimedWaitSystem<Helper> >(name + "::timed_wait_until(), posix system time");
+    runTestWithNone<Helper>(testFutureTimedWaitDur   <Helper>, name + "::timed_wait(), posix duration");
+    runTestWithNone<Helper>(testFutureTimedWaitSystem<Helper>, name + "::timed_wait_until(), posix system time");
+}
+
+//******************************************************************************
+
+// Test Shared Future Wait
+
+template <typename Helper>
+void testSharedFutureWaitFor(const long long jumpMs)
+{
+    typename Helper::packaged_task pt(returnFalse);
+    typename Helper::future f = pt.get_future();
+    typename Helper::shared_future sf = boost::move(f);
+
+    typename Helper::steady_time_point before(Helper::steadyNow());
+    bool noTimeout = (sf.wait_for(Helper::dur) == Helper::future_status::ready);
+    typename Helper::steady_time_point after(Helper::steadyNow());
+
+    checkWaitTime<Helper>(Helper::dur, after - before, noTimeout);
+}
+
+template <typename Helper>
+void testSharedFutureWaitUntilSteady(const long long jumpMs)
+{
+    typename Helper::packaged_task pt(returnFalse);
+    typename Helper::future f = pt.get_future();
+    typename Helper::shared_future sf = boost::move(f);
+
+    typename Helper::steady_time_point before(Helper::steadyNow());
+    bool noTimeout = (sf.wait_until(Helper::steadyNow() + Helper::dur) == Helper::future_status::ready);
+    typename Helper::steady_time_point after(Helper::steadyNow());
+
+    checkWaitTime<Helper>(Helper::dur, after - before, noTimeout);
+}
+
+template <typename Helper>
+void testSharedFutureWaitUntilSystem(const long long jumpMs)
+{
+    typename Helper::packaged_task pt(returnFalse);
+    typename Helper::future f = pt.get_future();
+    typename Helper::shared_future sf = boost::move(f);
+
+    typename Helper::steady_time_point before(Helper::steadyNow());
+    bool noTimeout = (sf.wait_until(Helper::systemNow() + Helper::dur) == Helper::future_status::ready);
+    typename Helper::steady_time_point after(Helper::steadyNow());
+
+    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, noTimeout);
+}
+
+template <typename Helper>
+void testSharedFutureWaitUntilCustom(const long long jumpMs)
+{
+    typename Helper::packaged_task pt(returnFalse);
+    typename Helper::future f = pt.get_future();
+    typename Helper::shared_future sf = boost::move(f);
+
+    typename Helper::steady_time_point before(Helper::steadyNow());
+    bool noTimeout = (sf.wait_until(Helper::customNow() + Helper::dur) == Helper::future_status::ready);
+    typename Helper::steady_time_point after(Helper::steadyNow());
+
+    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, noTimeout);
+}
+
+//--------------------------------------
+
+template <typename Helper>
+void testSharedFutureTimedWaitDur(const long long jumpMs)
+{
+#ifndef SKIP_DATETIME_FUNCTIONS
+    typename Helper::packaged_task pt(returnFalse);
+    typename Helper::future f = pt.get_future();
+    typename Helper::shared_future sf = boost::move(f);
+
+    typename Helper::steady_time_point before(Helper::steadyNow());
+    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::dur).count());
+    bool noTimeout = sf.timed_wait(ptDur);
+    typename Helper::steady_time_point after(Helper::steadyNow());
+
+    checkWaitTime<Helper>(Helper::dur, after - before, noTimeout);
+#else
+    checkWaitTime<Helper>(Helper::zero(), Helper::zero(), false);
+#endif
+}
+
+template <typename Helper>
+void testSharedFutureTimedWaitSystem(const long long jumpMs)
+{
+#ifndef SKIP_DATETIME_FUNCTIONS
+    typename Helper::packaged_task pt(returnFalse);
+    typename Helper::future f = pt.get_future();
+    typename Helper::shared_future sf = boost::move(f);
+
+    typename Helper::steady_time_point before(Helper::steadyNow());
+    boost::posix_time::ptime ptNow(boost::posix_time::microsec_clock::universal_time());
+    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::dur).count());
+    bool noTimeout = sf.timed_wait_until(ptNow + ptDur);
+    typename Helper::steady_time_point after(Helper::steadyNow());
+
+    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, noTimeout);
+#else
+    checkWaitTime<Helper>(Helper::zero(), Helper::zero(), false);
+#endif
+}
+
+//--------------------------------------
+
+template <typename Helper>
+void testSharedFutureStd(const std::string& name)
+{
+    std::cout << std::endl;
+    runTestWithNone<Helper>(testSharedFutureWaitFor        <Helper>, name + "::wait_for()");
+    runTestWithNone<Helper>(testSharedFutureWaitUntilSteady<Helper>, name + "::wait_until(), steady time");
+    runTestWithNone<Helper>(testSharedFutureWaitUntilSystem<Helper>, name + "::wait_until(), system time");
+    runTestWithNone<Helper>(testSharedFutureWaitUntilCustom<Helper>, name + "::wait_until(), custom time");
+}
+
+template <typename Helper>
+void testSharedFutureBoost(const std::string& name)
+{
+    testSharedFutureStd<Helper>(name);
+
+    // Boost-only functions
+    runTestWithNone<Helper>(testSharedFutureTimedWaitDur   <Helper>, name + "::timed_wait(), posix duration");
+    runTestWithNone<Helper>(testSharedFutureTimedWaitSystem<Helper>, name + "::timed_wait_until(), posix system time");
 }
 
 //******************************************************************************
@@ -1734,22 +1874,22 @@ int main()
     testMutexBoost             <BoostHelper<boost::shared_mutex                        > >("boost::shared_mutex"); // upgrade_mutex is a typedef of shared_mutex, so no need to test upgrade_mutex
     testMutexSharedBoost       <BoostHelper<boost::shared_mutex                        > >("boost::shared_mutex"); // upgrade_mutex is a typedef of shared_mutex, so no need to test upgrade_mutex
     testMutexUpgradeBoost      <BoostHelper<boost::shared_mutex                        > >("boost::shared_mutex"); // upgrade_mutex is a typedef of shared_mutex, so no need to test upgrade_mutex
-    testFutureBoost            <BoostHelper<boost::mutex, boost::future<bool>          > >("boost::future");
-    testFutureBoost            <BoostHelper<boost::mutex, boost::shared_future<bool>   > >("boost::shared_future");
+    testFutureBoost            <BoostHelper<                                           > >("boost::future");
+    testSharedFutureBoost      <BoostHelper<                                           > >("boost::shared_future");
 
 #ifdef CPP14_ENABLED
-//    testSleepStd        <StdHelper<                                       > >("std");
-//    testSleepNoThreadStd<StdHelper<                                       > >("std");
-//    testCondVarStd      <StdHelper<std::mutex, std::condition_variable    > >("std::condition_variable");
-//    testCondVarPredStd  <StdHelper<std::mutex, std::condition_variable    > >("std::condition_variable");
-//    testCondVarStd      <StdHelper<std::mutex, std::condition_variable_any> >("std::condition_variable_any");
-//    testCondVarPredStd  <StdHelper<std::mutex, std::condition_variable_any> >("std::condition_variable_any");
-//    testMutexStd        <StdHelper<std::timed_mutex                       > >("std::timed_mutex");
-//    testMutexStd        <StdHelper<std::recursive_timed_mutex             > >("std::recursive_timed_mutex");
-//    testMutexStd        <StdHelper<std::shared_timed_mutex                > >("std::shared_timed_mutex");
-//    testMutexSharedStd  <StdHelper<std::shared_timed_mutex                > >("std::shared_timed_mutex");
-//    testFutureStd       <StdHelper<std::mutex, std::future<bool>          > >("std::future");
-//    testFutureStd       <StdHelper<std::mutex, std::shared_future<bool>   > >("std::shared_future");
+    testSleepStd        <StdHelper<                                       > >("std");
+    testSleepNoThreadStd<StdHelper<                                       > >("std");
+    testCondVarStd      <StdHelper<std::mutex, std::condition_variable    > >("std::condition_variable");
+    testCondVarPredStd  <StdHelper<std::mutex, std::condition_variable    > >("std::condition_variable");
+    testCondVarStd      <StdHelper<std::mutex, std::condition_variable_any> >("std::condition_variable_any");
+    testCondVarPredStd  <StdHelper<std::mutex, std::condition_variable_any> >("std::condition_variable_any");
+    testMutexStd        <StdHelper<std::timed_mutex                       > >("std::timed_mutex");
+    testMutexStd        <StdHelper<std::recursive_timed_mutex             > >("std::recursive_timed_mutex");
+    testMutexStd        <StdHelper<std::shared_timed_mutex                > >("std::shared_timed_mutex");
+    testMutexSharedStd  <StdHelper<std::shared_timed_mutex                > >("std::shared_timed_mutex");
+    testFutureStd       <StdHelper<                                       > >("std::future");
+    testSharedFutureStd <StdHelper<                                       > >("std::shared_future");
 #endif
 
     std::cout << std::endl;

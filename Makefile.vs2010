@@ -1,0 +1,133 @@
+# Before using this makefile:
+# 1. Build with Microsoft Visual Studio 2010.
+# 2. Make sure b2 is in the PATH.
+# 3. Update the *_DIR variables below to point to your local source code directories.
+# 4. Run "b2 headers toolset=msvc-10.0" in the Boost source directories specified below.
+
+PATH=$(MAKEDIR)\..\boost-build-win32\bin;$(PATH)
+
+# boostorg/thread develop branch
+BOOST_ORIG_DIR   = $(MAKEDIR)\boost_git_orig
+# boostorg/thread feature/timespec_clocks branch
+BOOST_FIXED_DIR  = $(MAKEDIR)\boost_git_fixed
+# austin-beer/thread feature/timespec_clocks_prX branch
+BOOST_AUSTIN_DIR = $(MAKEDIR)\boost_git_austin
+
+BUILD_BOOST = b2 --build-dir=dist --with-date_time --with-chrono --with-thread --with-system toolset=msvc-10.0 address-model=64 link=static variant=debug
+
+COMPILE_COMMON = cl /EHsc /MDd /Zi test_time_jumps.cpp libboost_date_time-vc100-mt-gd-1_65_1.lib \
+                                                       libboost_chrono-vc100-mt-gd-1_65_1.lib \
+                                                       libboost_thread-vc100-mt-gd-1_65_1.lib \
+                                                       libboost_system-vc100-mt-gd-1_65_1.lib
+COMPILE_COMMON = $(COMPILE_COMMON) /DBOOST_THREAD_PROVIDES_FUTURE
+#COMPILE_COMMON = $(COMPILE_COMMON) /std:c++14 /DCPP14_ENABLED
+
+COMPILE_ORIG = @copy /y $(BOOST_ORIG_DIR)\stage\lib\libboost_date_time-vc100-mt-gd-1_65_1.lib $(BOOST_ORIG_DIR)\stage\lib\libboost_date_time-vc100-mt-gd-1_66.lib && \
+               @copy /y $(BOOST_ORIG_DIR)\stage\lib\libboost_chrono-vc100-mt-gd-1_65_1.lib    $(BOOST_ORIG_DIR)\stage\lib\libboost_chrono-vc100-mt-gd-1_66.lib    && \
+               @copy /y $(BOOST_ORIG_DIR)\stage\lib\libboost_thread-vc100-mt-gd-1_65_1.lib    $(BOOST_ORIG_DIR)\stage\lib\libboost_thread-vc100-mt-gd-1_66.lib    && \
+               @copy /y $(BOOST_ORIG_DIR)\stage\lib\libboost_system-vc100-mt-gd-1_65_1.lib    $(BOOST_ORIG_DIR)\stage\lib\libboost_system-vc100-mt-gd-1_66.lib    && \
+               $(COMPILE_COMMON) /I $(BOOST_ORIG_DIR)
+
+COMPILE_FIXED = @copy /y $(BOOST_FIXED_DIR)\stage\lib\libboost_date_time-vc100-mt-gd-1_65_1.lib $(BOOST_FIXED_DIR)\stage\lib\libboost_date_time-vc100-mt-gd-1_66.lib && \
+                @copy /y $(BOOST_FIXED_DIR)\stage\lib\libboost_chrono-vc100-mt-gd-1_65_1.lib    $(BOOST_FIXED_DIR)\stage\lib\libboost_chrono-vc100-mt-gd-1_66.lib    && \
+                @copy /y $(BOOST_FIXED_DIR)\stage\lib\libboost_thread-vc100-mt-gd-1_65_1.lib    $(BOOST_FIXED_DIR)\stage\lib\libboost_thread-vc100-mt-gd-1_66.lib    && \
+                @copy /y $(BOOST_FIXED_DIR)\stage\lib\libboost_system-vc100-mt-gd-1_65_1.lib    $(BOOST_FIXED_DIR)\stage\lib\libboost_system-vc100-mt-gd-1_66.lib    && \
+                $(COMPILE_COMMON) /I $(BOOST_FIXED_DIR)
+
+COMPILE_AUSTIN = @copy /y $(BOOST_AUSTIN_DIR)\stage\lib\libboost_date_time-vc100-mt-gd-1_65_1.lib $(BOOST_AUSTIN_DIR)\stage\lib\libboost_date_time-vc100-mt-gd-1_66.lib && \
+                 @copy /y $(BOOST_AUSTIN_DIR)\stage\lib\libboost_chrono-vc100-mt-gd-1_65_1.lib    $(BOOST_AUSTIN_DIR)\stage\lib\libboost_chrono-vc100-mt-gd-1_66.lib    && \
+                 @copy /y $(BOOST_AUSTIN_DIR)\stage\lib\libboost_thread-vc100-mt-gd-1_65_1.lib    $(BOOST_AUSTIN_DIR)\stage\lib\libboost_thread-vc100-mt-gd-1_66.lib    && \
+                 @copy /y $(BOOST_AUSTIN_DIR)\stage\lib\libboost_system-vc100-mt-gd-1_65_1.lib    $(BOOST_AUSTIN_DIR)\stage\lib\libboost_system-vc100-mt-gd-1_66.lib    && \
+                 $(COMPILE_COMMON) /I $(BOOST_AUSTIN_DIR)
+
+COMPILE_ORIG_NO    = $(COMPILE_ORIG)                                                            /link /LIBPATH:$(BOOST_ORIG_DIR)\stage\lib   /DEBUG
+COMPILE_ORIG_YES   = $(COMPILE_ORIG)   /DBOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSIONS /link /LIBPATH:$(BOOST_ORIG_DIR)\stage\lib   /DEBUG
+COMPILE_FIXED_NO   = $(COMPILE_FIXED)                                                           /link /LIBPATH:$(BOOST_FIXED_DIR)\stage\lib  /DEBUG
+COMPILE_FIXED_YES  = $(COMPILE_FIXED)  /DBOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSIONS /link /LIBPATH:$(BOOST_FIXED_DIR)\stage\lib  /DEBUG
+COMPILE_AUSTIN_NO  = $(COMPILE_AUSTIN)                                                          /link /LIBPATH:$(BOOST_AUSTIN_DIR)\stage\lib /DEBUG
+COMPILE_AUSTIN_YES = $(COMPILE_AUSTIN) /DBOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSIONS /link /LIBPATH:$(BOOST_AUSTIN_DIR)\stage\lib /DEBUG
+
+CLEAN_ORIG = ( @if exist $(BOOST_ORIG_DIR)\dist                                @rmdir /s /q $(BOOST_ORIG_DIR)\dist                                ) && \
+             ( @if exist $(BOOST_ORIG_DIR)\bin.v2                              @rmdir /s /q $(BOOST_ORIG_DIR)\bin.v2                              ) && \
+             ( @if exist $(BOOST_ORIG_DIR)\stage                               @rmdir /s /q $(BOOST_ORIG_DIR)\stage                               ) && \
+             ( @if exist $(BOOST_ORIG_DIR)\libs\config\checks\architecture\bin @rmdir /s /q $(BOOST_ORIG_DIR)\libs\config\checks\architecture\bin ) && \
+             ( @if exist $(MAKEDIR)\test_time_jumps.obj @del /f /q $(MAKEDIR)\test_time_jumps.obj )
+
+CLEAN_FIXED = ( @if exist $(BOOST_FIXED_DIR)\dist                                @rmdir /s /q $(BOOST_FIXED_DIR)\dist                                ) && \
+              ( @if exist $(BOOST_FIXED_DIR)\bin.v2                              @rmdir /s /q $(BOOST_FIXED_DIR)\bin.v2                              ) && \
+              ( @if exist $(BOOST_FIXED_DIR)\stage                               @rmdir /s /q $(BOOST_FIXED_DIR)\stage                               ) && \
+              ( @if exist $(BOOST_FIXED_DIR)\libs\config\checks\architecture\bin @rmdir /s /q $(BOOST_FIXED_DIR)\libs\config\checks\architecture\bin ) && \
+              ( @if exist $(MAKEDIR)\test_time_jumps.obj @del /f /q $(MAKEDIR)\test_time_jumps.obj )
+
+CLEAN_AUSTIN = ( @if exist $(BOOST_AUSTIN_DIR)\dist                                @rmdir /s /q $(BOOST_AUSTIN_DIR)\dist                                ) && \
+               ( @if exist $(BOOST_AUSTIN_DIR)\bin.v2                              @rmdir /s /q $(BOOST_AUSTIN_DIR)\bin.v2                              ) && \
+               ( @if exist $(BOOST_AUSTIN_DIR)\stage                               @rmdir /s /q $(BOOST_AUSTIN_DIR)\stage                               ) && \
+               ( @if exist $(BOOST_AUSTIN_DIR)\libs\config\checks\architecture\bin @rmdir /s /q $(BOOST_AUSTIN_DIR)\libs\config\checks\architecture\bin ) && \
+               ( @if exist $(MAKEDIR)\test_time_jumps.obj @del /f /q $(MAKEDIR)\test_time_jumps.obj )
+
+all: orig fixed austin
+
+clean: clean-orig clean-fixed clean-austin
+
+orig: orig-no orig-yes
+
+fixed: fixed-no fixed-yes
+
+austin: austin-no austin-yes
+
+clean-orig:
+	$(CLEAN_ORIG) && \
+	@del /f /q $(MAKEDIR)\test_time_jumps_orig_no_generic_shared.* && \
+	@del /f /q $(MAKEDIR)\test_time_jumps_orig_yes_generic_shared.*
+
+clean-fixed:
+	$(CLEAN_FIXED) && \
+	@del /f /q $(MAKEDIR)\test_time_jumps_fixed_no_generic_shared.* && \
+	@del /f /q $(MAKEDIR)\test_time_jumps_fixed_yes_generic_shared.*
+
+clean-austin:
+	$(CLEAN_AUSTIN) && \
+	@del /f /q $(MAKEDIR)\test_time_jumps_austin_no_generic_shared.* && \
+	@del /f /q $(MAKEDIR)\test_time_jumps_austin_yes_generic_shared.*
+
+orig-no: test_time_jumps.cpp
+	$(CLEAN_ORIG) && \
+	@del /f /q $(MAKEDIR)\test_time_jumps_orig_no_generic_shared.* && \
+	@cd $(BOOST_ORIG_DIR) && $(BUILD_BOOST) stage && \
+	@cd $(MAKEDIR) && $(COMPILE_ORIG_NO) /out:test_time_jumps_orig_no_generic_shared.exe && \
+	$(CLEAN_ORIG)
+
+orig-yes: test_time_jumps.cpp
+	$(CLEAN_ORIG) && \
+	@del /f /q $(MAKEDIR)\test_time_jumps_orig_yes_generic_shared.* && \
+	@cd $(BOOST_ORIG_DIR) && $(BUILD_BOOST) cxxflags=-DBOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSIONS stage && \
+	@cd $(MAKEDIR) && $(COMPILE_ORIG_YES) /out:test_time_jumps_orig_yes_generic_shared.exe && \
+	$(CLEAN_ORIG)
+
+fixed-no: test_time_jumps.cpp
+	$(CLEAN_FIXED) && \
+	@del /f /q $(MAKEDIR)\test_time_jumps_fixed_no_generic_shared.* && \
+	@cd $(BOOST_FIXED_DIR) && $(BUILD_BOOST) stage && \
+	@cd $(MAKEDIR) && $(COMPILE_FIXED_NO) /out:test_time_jumps_fixed_no_generic_shared.exe && \
+	$(CLEAN_FIXED)
+
+fixed-yes: test_time_jumps.cpp
+	$(CLEAN_FIXED) && \
+	@del /f /q $(MAKEDIR)\test_time_jumps_fixed_yes_generic_shared.* && \
+	@cd $(BOOST_FIXED_DIR) && $(BUILD_BOOST) cxxflags=-DBOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSIONS stage && \
+	@cd $(MAKEDIR) && $(COMPILE_FIXED_YES) /out:test_time_jumps_fixed_yes_generic_shared.exe && \
+	$(CLEAN_FIXED)
+
+austin-no: test_time_jumps.cpp
+	$(CLEAN_AUSTIN) && \
+	@del /f /q $(MAKEDIR)\test_time_jumps_austin_no_generic_shared.* && \
+	@cd $(BOOST_AUSTIN_DIR) && $(BUILD_BOOST) stage && \
+	@cd $(MAKEDIR) && $(COMPILE_AUSTIN_NO) /out:test_time_jumps_austin_no_generic_shared.exe && \
+	$(CLEAN_AUSTIN)
+
+austin-yes: test_time_jumps.cpp
+	$(CLEAN_AUSTIN) && \
+	@del /f /q $(MAKEDIR)\test_time_jumps_austin_yes_generic_shared.* && \
+	@cd $(BOOST_AUSTIN_DIR) && $(BUILD_BOOST) cxxflags=-DBOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSIONS stage && \
+	@cd $(MAKEDIR) && $(COMPILE_AUSTIN_YES) /out:test_time_jumps_austin_yes_generic_shared.exe && \
+	$(CLEAN_AUSTIN)

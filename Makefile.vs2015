@@ -19,8 +19,8 @@ COMPILE_COMMON = cl /EHsc /MDd /Zi test_time_jumps.cpp libboost_date_time-vc140-
                                                        libboost_chrono-vc140-mt-gd-1_65_1.lib \
                                                        libboost_thread-vc140-mt-gd-1_65_1.lib \
                                                        libboost_system-vc140-mt-gd-1_65_1.lib
-COMPILE_COMMON = $(COMPILE_COMMON) /std:c++14 /DCPP14_ENABLED
 COMPILE_COMMON = $(COMPILE_COMMON) /DBOOST_THREAD_PROVIDES_FUTURE
+#COMPILE_COMMON = $(COMPILE_COMMON) /std:c++14 /DCPP14_ENABLED
 
 COMPILE_ORIG = @copy /y $(BOOST_ORIG_DIR)\stage\lib\libboost_date_time-vc140-mt-gd-1_65_1.lib $(BOOST_ORIG_DIR)\stage\lib\libboost_date_time-vc140-mt-gd-1_66.lib && \
                @copy /y $(BOOST_ORIG_DIR)\stage\lib\libboost_chrono-vc140-mt-gd-1_65_1.lib    $(BOOST_ORIG_DIR)\stage\lib\libboost_chrono-vc140-mt-gd-1_66.lib    && \
