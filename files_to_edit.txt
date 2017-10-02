@@ -1,7 +1,7 @@
 include/boost/thread/detail/config.hpp
-include/boost/thread/detail/internal_clock.hpp
-include/boost/thread/detail/timespec.hpp
+include/boost/thread/detail/platform_time.hpp
 include/boost/thread/detail/thread.hpp
+include/boost/thread/detail/timespec.hpp
 include/boost/thread/future.hpp
 include/boost/thread/pthread/condition_variable.hpp
 include/boost/thread/pthread/condition_variable_fwd.hpp
