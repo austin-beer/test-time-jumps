@@ -349,12 +349,26 @@ void checkWaitTime(typename Helper::nanoseconds expected, typename Helper::nanos
     }
     else if (actual < expected - typename Helper::milliseconds(s_maxEarlyErrorMs))
     {
-        std::cout << "FAILED: TOO SHORT" << std::endl;
+        if (noTimeout)
+        {
+            std::cout << "FAILED: TOO SHORT" << std::endl;
+        }
+        else
+        {
+            std::cout << "FAILED: TOO SHORT, RETURNED TIMEOUT" << std::endl;
+        }
         g_numTestsFailed++;
     }
     else if (actual > expected + typename Helper::milliseconds(s_maxLateErrorMs))
     {
-        std::cout << "FAILED: TOO LONG" << std::endl;
+        if (noTimeout)
+        {
+            std::cout << "FAILED: TOO LONG, RETURNED NO_TIMEOUT" << std::endl;
+        }
+        else
+        {
+            std::cout << "FAILED: TOO LONG" << std::endl;
+        }
         g_numTestsFailed++;
     }
     else if (noTimeout)
@@ -672,8 +686,7 @@ void testSleepUntilNoIntCustom(const long long jumpMs)
 
 //--------------------------------------
 
-// The following functions are not implemented on Linux.
-#ifdef _WIN32
+#ifndef SKIP_NO_INT_SLEEP
 
 template <typename Helper>
 void testSleepNoIntDur(const long long jumpMs)
@@ -721,8 +734,7 @@ void testSleepNoIntBoost(const std::string& name)
     runTestWithNone<Helper>(testSleepUntilNoIntSystem<Helper>, name + "::this_thread::no_interruption_point::sleep_until(), system time");
     runTestWithNone<Helper>(testSleepUntilNoIntCustom<Helper>, name + "::this_thread::no_interruption_point::sleep_until(), custom time");
 
-// The following functions are not implemented on Linux.
-#ifdef _WIN32
+#ifndef SKIP_NO_INT_SLEEP
     runTestWithNone<Helper>(testSleepNoIntDur   <Helper>, name + "::this_thread::no_interruption_point::sleep(), posix duration");
     runTestWithNone<Helper>(testSleepNoIntSystem<Helper>, name + "::this_thread::no_interruption_point::sleep(), posix system time");
 #endif
@@ -737,8 +749,7 @@ void testSleepNoThreadNoIntBoost(const std::string& name)
     runTest<Helper>(testSleepUntilNoIntSystem<Helper>, name + "::this_thread::no_interruption_point::sleep_until(), no thread, system time");
     runTest<Helper>(testSleepUntilNoIntCustom<Helper>, name + "::this_thread::no_interruption_point::sleep_until(), no thread, custom time");
 
-// The following functions are not implemented on Linux.
-#ifdef _WIN32
+#ifndef SKIP_NO_INT_SLEEP
     runTest<Helper>(testSleepNoIntDur   <Helper>, name + "::this_thread::no_interruption_point::sleep(), no thread, posix duration");
     runTest<Helper>(testSleepNoIntSystem<Helper>, name + "::this_thread::no_interruption_point::sleep(), no thread, posix system time");
 #endif
