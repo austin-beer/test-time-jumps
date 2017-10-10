@@ -130,7 +130,7 @@ struct BoostHelper
 
     typedef boost::thread thread;
 
-    static const milliseconds dur;
+    static const milliseconds waitDur;
 
     template <typename T>
     static void sleep_for(T d)
@@ -185,7 +185,7 @@ struct BoostHelper
 
 template <typename MutexType, typename CondType>
 const typename BoostHelper<MutexType, CondType>::milliseconds
-BoostHelper<MutexType, CondType>::dur = typename BoostHelper<MutexType, CondType>::milliseconds(s_waitMs);
+BoostHelper<MutexType, CondType>::waitDur = typename BoostHelper<MutexType, CondType>::milliseconds(s_waitMs);
 
 #ifdef CPP14_ENABLED
 template <typename MutexType = std::mutex, typename CondType = std::condition_variable>
@@ -217,7 +217,7 @@ struct StdHelper
 
     typedef std::thread thread;
 
-    static const milliseconds dur;
+    static const milliseconds waitDur;
 
     template <typename T>
     static void sleep_for(T d)
@@ -260,7 +260,7 @@ struct StdHelper
 
 template <typename MutexType, typename CondType>
 const typename StdHelper<MutexType, CondType>::milliseconds
-StdHelper<MutexType, CondType>::dur = typename StdHelper<MutexType, CondType>::milliseconds(s_waitMs);
+StdHelper<MutexType, CondType>::waitDur = typename StdHelper<MutexType, CondType>::milliseconds(s_waitMs);
 #endif
 
 //******************************************************************************
@@ -553,40 +553,40 @@ template <typename Helper>
 void testSleepFor(const long long jumpMs)
 {
     typename Helper::steady_time_point before(Helper::steadyNow());
-    Helper::sleep_for(Helper::dur);
+    Helper::sleep_for(Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, e_na);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, e_na);
 }
 
 template <typename Helper>
 void testSleepUntilSteady(const long long jumpMs)
 {
     typename Helper::steady_time_point before(Helper::steadyNow());
-    Helper::sleep_until(Helper::steadyNow() + Helper::dur);
+    Helper::sleep_until(Helper::steadyNow() + Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, e_na);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, e_na);
 }
 
 template <typename Helper>
 void testSleepUntilSystem(const long long jumpMs)
 {
     typename Helper::steady_time_point before(Helper::steadyNow());
-    Helper::sleep_until(Helper::systemNow() + Helper::dur);
+    Helper::sleep_until(Helper::systemNow() + Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, e_na);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, e_na);
 }
 
 template <typename Helper>
 void testSleepUntilCustom(const long long jumpMs)
 {
     typename Helper::steady_time_point before(Helper::steadyNow());
-    Helper::sleep_until(Helper::customNow() + Helper::dur);
+    Helper::sleep_until(Helper::customNow() + Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, e_na);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, e_na);
 }
 
 //--------------------------------------
@@ -596,11 +596,11 @@ void testSleepDur(const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::steady_time_point before(Helper::steadyNow());
-    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::dur).count());
+    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::waitDur).count());
     boost::this_thread::sleep(ptDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, e_na);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, e_na);
 #else
     checkWaitTime<Helper>(Helper::zero(), Helper::zero(), e_na);
 #endif
@@ -612,11 +612,11 @@ void testSleepSystem(const long long jumpMs)
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::steady_time_point before(Helper::steadyNow());
     boost::posix_time::ptime ptNow(boost::posix_time::microsec_clock::universal_time());
-    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::dur).count());
+    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::waitDur).count());
     boost::this_thread::sleep(ptNow + ptDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, e_na);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, e_na);
 #else
     checkWaitTime<Helper>(Helper::zero(), Helper::zero(), e_na);
 #endif
@@ -672,40 +672,40 @@ template <typename Helper>
 void testSleepForNoInt(const long long jumpMs)
 {
     typename Helper::steady_time_point before(Helper::steadyNow());
-    Helper::sleep_for_no_int(Helper::dur);
+    Helper::sleep_for_no_int(Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, e_na);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, e_na);
 }
 
 template <typename Helper>
 void testSleepUntilNoIntSteady(const long long jumpMs)
 {
     typename Helper::steady_time_point before(Helper::steadyNow());
-    Helper::sleep_until_no_int(Helper::steadyNow() + Helper::dur);
+    Helper::sleep_until_no_int(Helper::steadyNow() + Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, e_na);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, e_na);
 }
 
 template <typename Helper>
 void testSleepUntilNoIntSystem(const long long jumpMs)
 {
     typename Helper::steady_time_point before(Helper::steadyNow());
-    Helper::sleep_until_no_int(Helper::systemNow() + Helper::dur);
+    Helper::sleep_until_no_int(Helper::systemNow() + Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, e_na);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, e_na);
 }
 
 template <typename Helper>
 void testSleepUntilNoIntCustom(const long long jumpMs)
 {
     typename Helper::steady_time_point before(Helper::steadyNow());
-    Helper::sleep_until_no_int(Helper::customNow() + Helper::dur);
+    Helper::sleep_until_no_int(Helper::customNow() + Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, e_na);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, e_na);
 }
 
 //--------------------------------------
@@ -717,11 +717,11 @@ void testSleepNoIntDur(const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::steady_time_point before(Helper::steadyNow());
-    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::dur).count());
+    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::waitDur).count());
     boost::this_thread::no_interruption_point::sleep(ptDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, e_na);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, e_na);
 #else
     checkWaitTime<Helper>(Helper::zero(), Helper::zero(), e_na);
 #endif
@@ -733,11 +733,11 @@ void testSleepNoIntSystem(const long long jumpMs)
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::steady_time_point before(Helper::steadyNow());
     boost::posix_time::ptime ptNow(boost::posix_time::microsec_clock::universal_time());
-    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::dur).count());
+    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::waitDur).count());
     boost::this_thread::no_interruption_point::sleep(ptNow + ptDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, e_na);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, e_na);
 #else
     checkWaitTime<Helper>(Helper::zero(), Helper::zero(), e_na);
 #endif
@@ -788,10 +788,10 @@ void testTryJoinFor(const long long jumpMs)
 {
     typename Helper::steady_time_point before(Helper::steadyNow());
     typename Helper::thread t3(sleepForLongTime);
-    bool succeeded = t3.try_join_for(Helper::dur);
+    bool succeeded = t3.try_join_for(Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, succeeded ? e_succeeded : e_failed);
 }
 
 template <typename Helper>
@@ -799,10 +799,10 @@ void testTryJoinUntilSteady(const long long jumpMs)
 {
     typename Helper::steady_time_point before(Helper::steadyNow());
     typename Helper::thread t3(sleepForLongTime);
-    bool succeeded = t3.try_join_until(Helper::steadyNow() + Helper::dur);
+    bool succeeded = t3.try_join_until(Helper::steadyNow() + Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, succeeded ? e_succeeded : e_failed);
 }
 
 template <typename Helper>
@@ -810,10 +810,10 @@ void testTryJoinUntilSystem(const long long jumpMs)
 {
     typename Helper::steady_time_point before(Helper::steadyNow());
     typename Helper::thread t3(sleepForLongTime);
-    bool succeeded = t3.try_join_until(Helper::systemNow() + Helper::dur);
+    bool succeeded = t3.try_join_until(Helper::systemNow() + Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
 }
 
 template <typename Helper>
@@ -821,10 +821,10 @@ void testTryJoinUntilCustom(const long long jumpMs)
 {
     typename Helper::steady_time_point before(Helper::steadyNow());
     typename Helper::thread t3(sleepForLongTime);
-    bool succeeded = t3.try_join_until(Helper::customNow() + Helper::dur);
+    bool succeeded = t3.try_join_until(Helper::customNow() + Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
 }
 
 //--------------------------------------
@@ -834,12 +834,12 @@ void testTimedJoinDur(const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::steady_time_point before(Helper::steadyNow());
-    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::dur).count());
+    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::waitDur).count());
     typename Helper::thread t3(sleepForLongTime);
     bool succeeded = t3.timed_join(ptDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, succeeded ? e_succeeded : e_failed);
 #else
     checkWaitTime<Helper>(Helper::zero(), Helper::zero(), e_na);
 #endif
@@ -851,12 +851,12 @@ void testTimedJoinSystem(const long long jumpMs)
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::steady_time_point before(Helper::steadyNow());
     boost::posix_time::ptime ptNow(boost::posix_time::microsec_clock::universal_time());
-    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::dur).count());
+    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::waitDur).count());
     typename Helper::thread t3(sleepForLongTime);
     bool succeeded = t3.timed_join(ptNow + ptDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
 #else
     checkWaitTime<Helper>(Helper::zero(), Helper::zero(), e_na);
 #endif
@@ -890,10 +890,10 @@ void testCondVarWaitFor(const long long jumpMs)
     typename Helper::unique_lock g(m);
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool noTimeout = (cv.wait_for(g, Helper::dur) == Helper::cv_status::no_timeout);
+    bool noTimeout = (cv.wait_for(g, Helper::waitDur) == Helper::cv_status::no_timeout);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, noTimeout ? e_no_timeout : e_timeout);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, noTimeout ? e_no_timeout : e_timeout);
 }
 
 template <typename Helper>
@@ -904,10 +904,10 @@ void testCondVarWaitUntilSteady(const long long jumpMs)
     typename Helper::unique_lock g(m);
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool noTimeout = (cv.wait_until(g, Helper::steadyNow() + Helper::dur) == Helper::cv_status::no_timeout);
+    bool noTimeout = (cv.wait_until(g, Helper::steadyNow() + Helper::waitDur) == Helper::cv_status::no_timeout);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, noTimeout ? e_no_timeout : e_timeout);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, noTimeout ? e_no_timeout : e_timeout);
 }
 
 template <typename Helper>
@@ -918,10 +918,10 @@ void testCondVarWaitUntilSystem(const long long jumpMs)
     typename Helper::unique_lock g(m);
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool noTimeout = (cv.wait_until(g, Helper::systemNow() + Helper::dur) == Helper::cv_status::no_timeout);
+    bool noTimeout = (cv.wait_until(g, Helper::systemNow() + Helper::waitDur) == Helper::cv_status::no_timeout);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, noTimeout ? e_no_timeout : e_timeout);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, noTimeout ? e_no_timeout : e_timeout);
 }
 
 template <typename Helper>
@@ -932,10 +932,10 @@ void testCondVarWaitUntilCustom(const long long jumpMs)
     typename Helper::unique_lock g(m);
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool noTimeout = (cv.wait_until(g, Helper::customNow() + Helper::dur) == Helper::cv_status::no_timeout);
+    bool noTimeout = (cv.wait_until(g, Helper::customNow() + Helper::waitDur) == Helper::cv_status::no_timeout);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, noTimeout ? e_no_timeout : e_timeout);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, noTimeout ? e_no_timeout : e_timeout);
 }
 
 //--------------------------------------
@@ -949,11 +949,11 @@ void testCondVarTimedWaitDur(const long long jumpMs)
     typename Helper::unique_lock g(m);
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::dur).count());
+    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::waitDur).count());
     bool noTimeout = cv.timed_wait(g, ptDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, noTimeout ? e_no_timeout : e_timeout);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, noTimeout ? e_no_timeout : e_timeout);
 #else
     checkWaitTime<Helper>(Helper::zero(), Helper::zero(), e_na);
 #endif
@@ -969,11 +969,11 @@ void testCondVarTimedWaitSystem(const long long jumpMs)
 
     typename Helper::steady_time_point before(Helper::steadyNow());
     boost::posix_time::ptime ptNow(boost::posix_time::microsec_clock::universal_time());
-    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::dur).count());
+    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::waitDur).count());
     bool noTimeout = cv.timed_wait(g, ptNow + ptDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, noTimeout ? e_no_timeout : e_timeout);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, noTimeout ? e_no_timeout : e_timeout);
 #else
     checkWaitTime<Helper>(Helper::zero(), Helper::zero(), e_na);
 #endif
@@ -1013,10 +1013,10 @@ void testCondVarWaitForPred(const long long jumpMs)
     typename Helper::unique_lock g(m);
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool noTimeout = cv.wait_for(g, Helper::dur, returnFalse);
+    bool noTimeout = cv.wait_for(g, Helper::waitDur, returnFalse);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, noTimeout ? e_no_timeout : e_timeout);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, noTimeout ? e_no_timeout : e_timeout);
 }
 
 template <typename Helper>
@@ -1027,10 +1027,10 @@ void testCondVarWaitUntilPredSteady(const long long jumpMs)
     typename Helper::unique_lock g(m);
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool noTimeout = cv.wait_until(g, Helper::steadyNow() + Helper::dur, returnFalse);
+    bool noTimeout = cv.wait_until(g, Helper::steadyNow() + Helper::waitDur, returnFalse);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, noTimeout ? e_no_timeout : e_timeout);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, noTimeout ? e_no_timeout : e_timeout);
 }
 
 template <typename Helper>
@@ -1041,10 +1041,10 @@ void testCondVarWaitUntilPredSystem(const long long jumpMs)
     typename Helper::unique_lock g(m);
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool noTimeout = cv.wait_until(g, Helper::systemNow() + Helper::dur, returnFalse);
+    bool noTimeout = cv.wait_until(g, Helper::systemNow() + Helper::waitDur, returnFalse);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, noTimeout ? e_no_timeout : e_timeout);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, noTimeout ? e_no_timeout : e_timeout);
 }
 
 template <typename Helper>
@@ -1055,10 +1055,10 @@ void testCondVarWaitUntilPredCustom(const long long jumpMs)
     typename Helper::unique_lock g(m);
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool noTimeout = cv.wait_until(g, Helper::customNow() + Helper::dur, returnFalse);
+    bool noTimeout = cv.wait_until(g, Helper::customNow() + Helper::waitDur, returnFalse);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, noTimeout ? e_no_timeout : e_timeout);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, noTimeout ? e_no_timeout : e_timeout);
 }
 
 //--------------------------------------
@@ -1072,11 +1072,11 @@ void testCondVarTimedWaitPredDur(const long long jumpMs)
     typename Helper::unique_lock g(m);
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::dur).count());
+    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::waitDur).count());
     bool noTimeout = cv.timed_wait(g, ptDur, returnFalse);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, noTimeout ? e_no_timeout : e_timeout);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, noTimeout ? e_no_timeout : e_timeout);
 #else
     checkWaitTime<Helper>(Helper::zero(), Helper::zero(), e_na);
 #endif
@@ -1092,11 +1092,11 @@ void testCondVarTimedWaitPredSystem(const long long jumpMs)
 
     typename Helper::steady_time_point before(Helper::steadyNow());
     boost::posix_time::ptime ptNow(boost::posix_time::microsec_clock::universal_time());
-    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::dur).count());
+    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::waitDur).count());
     bool noTimeout = cv.timed_wait(g, ptNow + ptDur, returnFalse);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, noTimeout ? e_no_timeout : e_timeout);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, noTimeout ? e_no_timeout : e_timeout);
 #else
     checkWaitTime<Helper>(Helper::zero(), Helper::zero(), e_na);
 #endif
@@ -1132,40 +1132,40 @@ template <typename Helper>
 void testTryLockFor(typename Helper::mutex& m, const long long jumpMs)
 {
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool succeeded = m.try_lock_for(Helper::dur);
+    bool succeeded = m.try_lock_for(Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, succeeded ? e_succeeded : e_failed);
 }
 
 template <typename Helper>
 void testTryLockUntilSteady(typename Helper::mutex& m, const long long jumpMs)
 {
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool succeeded = m.try_lock_until(Helper::steadyNow() + Helper::dur);
+    bool succeeded = m.try_lock_until(Helper::steadyNow() + Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, succeeded ? e_succeeded : e_failed);
 }
 
 template <typename Helper>
 void testTryLockUntilSystem(typename Helper::mutex& m, const long long jumpMs)
 {
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool succeeded = m.try_lock_until(Helper::systemNow() + Helper::dur);
+    bool succeeded = m.try_lock_until(Helper::systemNow() + Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
 }
 
 template <typename Helper>
 void testTryLockUntilCustom(typename Helper::mutex& m, const long long jumpMs)
 {
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool succeeded = m.try_lock_until(Helper::customNow() + Helper::dur);
+    bool succeeded = m.try_lock_until(Helper::customNow() + Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
 }
 
 //--------------------------------------
@@ -1175,11 +1175,11 @@ void testTimedLockDur(typename Helper::mutex& m, const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::steady_time_point before(Helper::steadyNow());
-    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::dur).count());
+    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::waitDur).count());
     bool succeeded = m.timed_lock(ptDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, succeeded ? e_succeeded : e_failed);
 #else
     checkWaitTime<Helper>(Helper::zero(), Helper::zero(), e_na);
 #endif
@@ -1191,11 +1191,11 @@ void testTimedLockSystem(typename Helper::mutex& m, const long long jumpMs)
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::steady_time_point before(Helper::steadyNow());
     boost::posix_time::ptime ptNow(boost::posix_time::microsec_clock::universal_time());
-    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::dur).count());
+    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::waitDur).count());
     bool succeeded = m.timed_lock(ptNow + ptDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
 #else
     checkWaitTime<Helper>(Helper::zero(), Helper::zero(), e_na);
 #endif
@@ -1231,40 +1231,40 @@ template <typename Helper>
 void testTryLockSharedFor(typename Helper::mutex& m, const long long jumpMs)
 {
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool succeeded = m.try_lock_shared_for(Helper::dur);
+    bool succeeded = m.try_lock_shared_for(Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, succeeded ? e_succeeded : e_failed);
 }
 
 template <typename Helper>
 void testTryLockSharedUntilSteady(typename Helper::mutex& m, const long long jumpMs)
 {
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool succeeded = m.try_lock_shared_until(Helper::steadyNow() + Helper::dur);
+    bool succeeded = m.try_lock_shared_until(Helper::steadyNow() + Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, succeeded ? e_succeeded : e_failed);
 }
 
 template <typename Helper>
 void testTryLockSharedUntilSystem(typename Helper::mutex& m, const long long jumpMs)
 {
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool succeeded = m.try_lock_shared_until(Helper::systemNow() + Helper::dur);
+    bool succeeded = m.try_lock_shared_until(Helper::systemNow() + Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
 }
 
 template <typename Helper>
 void testTryLockSharedUntilCustom(typename Helper::mutex& m, const long long jumpMs)
 {
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool succeeded = m.try_lock_shared_until(Helper::customNow() + Helper::dur);
+    bool succeeded = m.try_lock_shared_until(Helper::customNow() + Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
 }
 
 //--------------------------------------
@@ -1274,11 +1274,11 @@ void testTimedLockSharedDur(typename Helper::mutex& m, const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::steady_time_point before(Helper::steadyNow());
-    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::dur).count());
+    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::waitDur).count());
     bool succeeded = m.timed_lock_shared(ptDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, succeeded ? e_succeeded : e_failed);
 #else
     checkWaitTime<Helper>(Helper::zero(), Helper::zero(), e_na);
 #endif
@@ -1290,11 +1290,11 @@ void testTimedLockSharedSystem(typename Helper::mutex& m, const long long jumpMs
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::steady_time_point before(Helper::steadyNow());
     boost::posix_time::ptime ptNow(boost::posix_time::microsec_clock::universal_time());
-    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::dur).count());
+    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::waitDur).count());
     bool succeeded = m.timed_lock_shared(ptNow + ptDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
 #else
     checkWaitTime<Helper>(Helper::zero(), Helper::zero(), e_na);
 #endif
@@ -1332,40 +1332,40 @@ template <typename Helper>
 void testTryLockUpgradeFor(typename Helper::mutex& m, const long long jumpMs)
 {
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool succeeded = m.try_lock_upgrade_for(Helper::dur);
+    bool succeeded = m.try_lock_upgrade_for(Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, succeeded ? e_succeeded : e_failed);
 }
 
 template <typename Helper>
 void testTryLockUpgradeUntilSteady(typename Helper::mutex& m, const long long jumpMs)
 {
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool succeeded = m.try_lock_upgrade_until(Helper::steadyNow() + Helper::dur);
+    bool succeeded = m.try_lock_upgrade_until(Helper::steadyNow() + Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, succeeded ? e_succeeded : e_failed);
 }
 
 template <typename Helper>
 void testTryLockUpgradeUntilSystem(typename Helper::mutex& m, const long long jumpMs)
 {
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool succeeded = m.try_lock_upgrade_until(Helper::systemNow() + Helper::dur);
+    bool succeeded = m.try_lock_upgrade_until(Helper::systemNow() + Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
 }
 
 template <typename Helper>
 void testTryLockUpgradeUntilCustom(typename Helper::mutex& m, const long long jumpMs)
 {
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool succeeded = m.try_lock_upgrade_until(Helper::customNow() + Helper::dur);
+    bool succeeded = m.try_lock_upgrade_until(Helper::customNow() + Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
 }
 
 //--------------------------------------
@@ -1375,11 +1375,11 @@ void testTimedLockUpgradeDur(typename Helper::mutex& m, const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::steady_time_point before(Helper::steadyNow());
-    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::dur).count());
+    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::waitDur).count());
     bool succeeded = m.timed_lock_upgrade(ptDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, succeeded ? e_succeeded : e_failed);
 #else
     checkWaitTime<Helper>(Helper::zero(), Helper::zero(), e_na);
 #endif
@@ -1391,11 +1391,11 @@ void testTimedLockUpgradeSystem(typename Helper::mutex& m, const long long jumpM
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::steady_time_point before(Helper::steadyNow());
     boost::posix_time::ptime ptNow(boost::posix_time::microsec_clock::universal_time());
-    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::dur).count());
+    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::waitDur).count());
     bool succeeded = m.timed_lock_upgrade(ptNow + ptDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
 #else
     checkWaitTime<Helper>(Helper::zero(), Helper::zero(), e_na);
 #endif
@@ -1409,10 +1409,10 @@ void testTryUnlockSharedAndLockFor(typename Helper::mutex& m, const long long ju
     boost::shared_lock_guard<typename Helper::mutex> g(m);
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool succeeded = m.try_unlock_shared_and_lock_for(Helper::dur);
+    bool succeeded = m.try_unlock_shared_and_lock_for(Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, succeeded ? e_succeeded : e_failed);
 }
 
 template <typename Helper>
@@ -1421,10 +1421,10 @@ void testTryUnlockSharedAndLockUntilSteady(typename Helper::mutex& m, const long
     boost::shared_lock_guard<typename Helper::mutex> g(m);
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool succeeded = m.try_unlock_shared_and_lock_until(Helper::steadyNow() + Helper::dur);
+    bool succeeded = m.try_unlock_shared_and_lock_until(Helper::steadyNow() + Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, succeeded ? e_succeeded : e_failed);
 }
 
 template <typename Helper>
@@ -1433,10 +1433,10 @@ void testTryUnlockSharedAndLockUntilSystem(typename Helper::mutex& m, const long
     boost::shared_lock_guard<typename Helper::mutex> g(m);
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool succeeded = m.try_unlock_shared_and_lock_until(Helper::systemNow() + Helper::dur);
+    bool succeeded = m.try_unlock_shared_and_lock_until(Helper::systemNow() + Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
 }
 
 template <typename Helper>
@@ -1445,10 +1445,10 @@ void testTryUnlockSharedAndLockUntilCustom(typename Helper::mutex& m, const long
     boost::shared_lock_guard<typename Helper::mutex> g(m);
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool succeeded = m.try_unlock_shared_and_lock_until(Helper::customNow() + Helper::dur);
+    bool succeeded = m.try_unlock_shared_and_lock_until(Helper::customNow() + Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
 }
 
 //--------------------------------------
@@ -1459,10 +1459,10 @@ void testTryUnlockUpgradeAndLockFor(typename Helper::mutex& m, const long long j
     boost::upgrade_lock<typename Helper::mutex> g(m);
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool succeeded = m.try_unlock_upgrade_and_lock_for(Helper::dur);
+    bool succeeded = m.try_unlock_upgrade_and_lock_for(Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, succeeded ? e_succeeded : e_failed);
 }
 
 template <typename Helper>
@@ -1471,10 +1471,10 @@ void testTryUnlockUpgradeAndLockUntilSteady(typename Helper::mutex& m, const lon
     boost::upgrade_lock<typename Helper::mutex> g(m);
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool succeeded = m.try_unlock_upgrade_and_lock_until(Helper::steadyNow() + Helper::dur);
+    bool succeeded = m.try_unlock_upgrade_and_lock_until(Helper::steadyNow() + Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, succeeded ? e_succeeded : e_failed);
 }
 
 template <typename Helper>
@@ -1483,10 +1483,10 @@ void testTryUnlockUpgradeAndLockUntilSystem(typename Helper::mutex& m, const lon
     boost::upgrade_lock<typename Helper::mutex> g(m);
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool succeeded = m.try_unlock_upgrade_and_lock_until(Helper::systemNow() + Helper::dur);
+    bool succeeded = m.try_unlock_upgrade_and_lock_until(Helper::systemNow() + Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
 }
 
 template <typename Helper>
@@ -1495,10 +1495,10 @@ void testTryUnlockUpgradeAndLockUntilCustom(typename Helper::mutex& m, const lon
     boost::upgrade_lock<typename Helper::mutex> g(m);
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool succeeded = m.try_unlock_upgrade_and_lock_until(Helper::customNow() + Helper::dur);
+    bool succeeded = m.try_unlock_upgrade_and_lock_until(Helper::customNow() + Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
 }
 
 //--------------------------------------
@@ -1509,10 +1509,10 @@ void testTryUnlockSharedAndLockUpgradeFor(typename Helper::mutex& m, const long 
     boost::shared_lock_guard<typename Helper::mutex> g(m);
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool succeeded = m.try_unlock_shared_and_lock_upgrade_for(Helper::dur);
+    bool succeeded = m.try_unlock_shared_and_lock_upgrade_for(Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, succeeded ? e_succeeded : e_failed);
 }
 
 template <typename Helper>
@@ -1521,10 +1521,10 @@ void testTryUnlockSharedAndLockUpgradeUntilSteady(typename Helper::mutex& m, con
     boost::shared_lock_guard<typename Helper::mutex> g(m);
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool succeeded = m.try_unlock_shared_and_lock_upgrade_until(Helper::steadyNow() + Helper::dur);
+    bool succeeded = m.try_unlock_shared_and_lock_upgrade_until(Helper::steadyNow() + Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, succeeded ? e_succeeded : e_failed);
 }
 
 template <typename Helper>
@@ -1533,10 +1533,10 @@ void testTryUnlockSharedAndLockUpgradeUntilSystem(typename Helper::mutex& m, con
     boost::shared_lock_guard<typename Helper::mutex> g(m);
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool succeeded = m.try_unlock_shared_and_lock_upgrade_until(Helper::systemNow() + Helper::dur);
+    bool succeeded = m.try_unlock_shared_and_lock_upgrade_until(Helper::systemNow() + Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
 }
 
 template <typename Helper>
@@ -1545,10 +1545,10 @@ void testTryUnlockSharedAndLockUpgradeUntilCustom(typename Helper::mutex& m, con
     boost::shared_lock_guard<typename Helper::mutex> g(m);
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool succeeded = m.try_unlock_shared_and_lock_upgrade_until(Helper::customNow() + Helper::dur);
+    bool succeeded = m.try_unlock_shared_and_lock_upgrade_until(Helper::customNow() + Helper::waitDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, succeeded ? e_succeeded : e_failed);
 }
 
 #endif
@@ -1600,10 +1600,10 @@ void testFutureWaitFor(const long long jumpMs)
     typename Helper::future f = pt.get_future();
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool timeout = (f.wait_for(Helper::dur) == Helper::future_status::timeout);
+    bool timeout = (f.wait_for(Helper::waitDur) == Helper::future_status::timeout);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, timeout ? e_timeout : e_no_timeout);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, timeout ? e_timeout : e_no_timeout);
 }
 
 template <typename Helper>
@@ -1613,10 +1613,10 @@ void testFutureWaitUntilSteady(const long long jumpMs)
     typename Helper::future f = pt.get_future();
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool timeout = (f.wait_until(Helper::steadyNow() + Helper::dur) == Helper::future_status::timeout);
+    bool timeout = (f.wait_until(Helper::steadyNow() + Helper::waitDur) == Helper::future_status::timeout);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, timeout ? e_timeout : e_no_timeout);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, timeout ? e_timeout : e_no_timeout);
 }
 
 template <typename Helper>
@@ -1626,10 +1626,10 @@ void testFutureWaitUntilSystem(const long long jumpMs)
     typename Helper::future f = pt.get_future();
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool timeout = (f.wait_until(Helper::systemNow() + Helper::dur) == Helper::future_status::timeout);
+    bool timeout = (f.wait_until(Helper::systemNow() + Helper::waitDur) == Helper::future_status::timeout);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, timeout ? e_timeout : e_no_timeout);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, timeout ? e_timeout : e_no_timeout);
 }
 
 template <typename Helper>
@@ -1639,10 +1639,10 @@ void testFutureWaitUntilCustom(const long long jumpMs)
     typename Helper::future f = pt.get_future();
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool timeout = (f.wait_until(Helper::customNow() + Helper::dur) == Helper::future_status::timeout);
+    bool timeout = (f.wait_until(Helper::customNow() + Helper::waitDur) == Helper::future_status::timeout);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, timeout ? e_timeout : e_no_timeout);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, timeout ? e_timeout : e_no_timeout);
 }
 
 //--------------------------------------
@@ -1655,11 +1655,11 @@ void testFutureTimedWaitDur(const long long jumpMs)
     typename Helper::future f = pt.get_future();
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::dur).count());
+    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::waitDur).count());
     bool noTimeout = f.timed_wait(ptDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, noTimeout ? e_no_timeout : e_timeout);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, noTimeout ? e_no_timeout : e_timeout);
 #else
     checkWaitTime<Helper>(Helper::zero(), Helper::zero(), e_na);
 #endif
@@ -1674,11 +1674,11 @@ void testFutureTimedWaitSystem(const long long jumpMs)
 
     typename Helper::steady_time_point before(Helper::steadyNow());
     boost::posix_time::ptime ptNow(boost::posix_time::microsec_clock::universal_time());
-    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::dur).count());
+    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::waitDur).count());
     bool noTimeout = f.timed_wait_until(ptNow + ptDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, noTimeout ? e_no_timeout : e_timeout);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, noTimeout ? e_no_timeout : e_timeout);
 #else
     checkWaitTime<Helper>(Helper::zero(), Helper::zero(), e_na);
 #endif
@@ -1718,10 +1718,10 @@ void testSharedFutureWaitFor(const long long jumpMs)
     typename Helper::shared_future sf = boost::move(f);
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool timeout = (sf.wait_for(Helper::dur) == Helper::future_status::timeout);
+    bool timeout = (sf.wait_for(Helper::waitDur) == Helper::future_status::timeout);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, timeout ? e_timeout : e_no_timeout);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, timeout ? e_timeout : e_no_timeout);
 }
 
 template <typename Helper>
@@ -1732,10 +1732,10 @@ void testSharedFutureWaitUntilSteady(const long long jumpMs)
     typename Helper::shared_future sf = boost::move(f);
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool timeout = (sf.wait_until(Helper::steadyNow() + Helper::dur) == Helper::future_status::timeout);
+    bool timeout = (sf.wait_until(Helper::steadyNow() + Helper::waitDur) == Helper::future_status::timeout);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, timeout ? e_timeout : e_no_timeout);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, timeout ? e_timeout : e_no_timeout);
 }
 
 template <typename Helper>
@@ -1746,10 +1746,10 @@ void testSharedFutureWaitUntilSystem(const long long jumpMs)
     typename Helper::shared_future sf = boost::move(f);
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool timeout = (sf.wait_until(Helper::systemNow() + Helper::dur) == Helper::future_status::timeout);
+    bool timeout = (sf.wait_until(Helper::systemNow() + Helper::waitDur) == Helper::future_status::timeout);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, timeout ? e_timeout : e_no_timeout);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, timeout ? e_timeout : e_no_timeout);
 }
 
 template <typename Helper>
@@ -1760,10 +1760,10 @@ void testSharedFutureWaitUntilCustom(const long long jumpMs)
     typename Helper::shared_future sf = boost::move(f);
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    bool timeout = (sf.wait_until(Helper::customNow() + Helper::dur) == Helper::future_status::timeout);
+    bool timeout = (sf.wait_until(Helper::customNow() + Helper::waitDur) == Helper::future_status::timeout);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, timeout ? e_timeout : e_no_timeout);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, timeout ? e_timeout : e_no_timeout);
 }
 
 //--------------------------------------
@@ -1777,11 +1777,11 @@ void testSharedFutureTimedWaitDur(const long long jumpMs)
     typename Helper::shared_future sf = boost::move(f);
 
     typename Helper::steady_time_point before(Helper::steadyNow());
-    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::dur).count());
+    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::waitDur).count());
     bool noTimeout = sf.timed_wait(ptDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur, after - before, noTimeout ? e_no_timeout : e_timeout);
+    checkWaitTime<Helper>(Helper::waitDur, after - before, noTimeout ? e_no_timeout : e_timeout);
 #else
     checkWaitTime<Helper>(Helper::zero(), Helper::zero(), e_na);
 #endif
@@ -1797,11 +1797,11 @@ void testSharedFutureTimedWaitSystem(const long long jumpMs)
 
     typename Helper::steady_time_point before(Helper::steadyNow());
     boost::posix_time::ptime ptNow(boost::posix_time::microsec_clock::universal_time());
-    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::dur).count());
+    boost::posix_time::milliseconds ptDur(boost::chrono::duration_cast<boost::chrono::milliseconds>(Helper::waitDur).count());
     bool noTimeout = sf.timed_wait_until(ptNow + ptDur);
     typename Helper::steady_time_point after(Helper::steadyNow());
 
-    checkWaitTime<Helper>(Helper::dur - typename Helper::milliseconds(jumpMs), after - before, noTimeout ? e_no_timeout : e_timeout);
+    checkWaitTime<Helper>(Helper::waitDur - typename Helper::milliseconds(jumpMs), after - before, noTimeout ? e_no_timeout : e_timeout);
 #else
     checkWaitTime<Helper>(Helper::zero(), Helper::zero(), e_na);
 #endif
