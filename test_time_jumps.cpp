@@ -592,7 +592,7 @@ void testSleepUntilCustom(const long long jumpMs)
 //--------------------------------------
 
 template <typename Helper>
-void testSleepDur(const long long jumpMs)
+void testSleepRelative(const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::steady_time_point before(Helper::steadyNow());
@@ -607,7 +607,7 @@ void testSleepDur(const long long jumpMs)
 }
 
 template <typename Helper>
-void testSleepSystem(const long long jumpMs)
+void testSleepAbsolute(const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::steady_time_point before(Helper::steadyNow());
@@ -640,8 +640,8 @@ void testSleepBoost(const std::string& name)
     testSleepStd<Helper>(name);
 
     // Boost-only functions
-    runTestWithNone<Helper>(testSleepDur   <Helper>, name + "::this_thread::sleep(), posix duration");
-    runTestWithNone<Helper>(testSleepSystem<Helper>, name + "::this_thread::sleep(), posix system time");
+    runTestWithNone<Helper>(testSleepRelative<Helper>, name + "::this_thread::sleep(), relative time");
+    runTestWithNone<Helper>(testSleepAbsolute<Helper>, name + "::this_thread::sleep(), absolute time");
 }
 
 template <typename Helper>
@@ -660,8 +660,8 @@ void testSleepNoThreadBoost(const std::string& name)
     testSleepNoThreadStd<Helper>(name);
 
     // Boost-only functions
-    runTest<Helper>(testSleepDur   <Helper>, name + "::this_thread::sleep(), no thread, posix duration");
-    runTest<Helper>(testSleepSystem<Helper>, name + "::this_thread::sleep(), no thread, posix system time");
+    runTest<Helper>(testSleepRelative<Helper>, name + "::this_thread::sleep(), no thread, relative time");
+    runTest<Helper>(testSleepAbsolute<Helper>, name + "::this_thread::sleep(), no thread, absolute time");
 }
 
 //******************************************************************************
@@ -713,7 +713,7 @@ void testSleepUntilNoIntCustom(const long long jumpMs)
 #ifndef SKIP_NO_INT_SLEEP
 
 template <typename Helper>
-void testSleepNoIntDur(const long long jumpMs)
+void testSleepNoIntRelative(const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::steady_time_point before(Helper::steadyNow());
@@ -728,7 +728,7 @@ void testSleepNoIntDur(const long long jumpMs)
 }
 
 template <typename Helper>
-void testSleepNoIntSystem(const long long jumpMs)
+void testSleepNoIntAbsolute(const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::steady_time_point before(Helper::steadyNow());
@@ -759,8 +759,8 @@ void testSleepNoIntBoost(const std::string& name)
     runTestWithNone<Helper>(testSleepUntilNoIntCustom<Helper>, name + "::this_thread::no_interruption_point::sleep_until(), custom time");
 
 #ifndef SKIP_NO_INT_SLEEP
-    runTestWithNone<Helper>(testSleepNoIntDur   <Helper>, name + "::this_thread::no_interruption_point::sleep(), posix duration");
-    runTestWithNone<Helper>(testSleepNoIntSystem<Helper>, name + "::this_thread::no_interruption_point::sleep(), posix system time");
+    runTestWithNone<Helper>(testSleepNoIntRelative<Helper>, name + "::this_thread::no_interruption_point::sleep(), relative time");
+    runTestWithNone<Helper>(testSleepNoIntAbsolute<Helper>, name + "::this_thread::no_interruption_point::sleep(), absolute time");
 #endif
 }
 
@@ -774,8 +774,8 @@ void testSleepNoThreadNoIntBoost(const std::string& name)
     runTest<Helper>(testSleepUntilNoIntCustom<Helper>, name + "::this_thread::no_interruption_point::sleep_until(), no thread, custom time");
 
 #ifndef SKIP_NO_INT_SLEEP
-    runTest<Helper>(testSleepNoIntDur   <Helper>, name + "::this_thread::no_interruption_point::sleep(), no thread, posix duration");
-    runTest<Helper>(testSleepNoIntSystem<Helper>, name + "::this_thread::no_interruption_point::sleep(), no thread, posix system time");
+    runTest<Helper>(testSleepNoIntRelative<Helper>, name + "::this_thread::no_interruption_point::sleep(), no thread, relative time");
+    runTest<Helper>(testSleepNoIntAbsolute<Helper>, name + "::this_thread::no_interruption_point::sleep(), no thread, absolute time");
 #endif
 }
 
@@ -830,7 +830,7 @@ void testTryJoinUntilCustom(const long long jumpMs)
 //--------------------------------------
 
 template <typename Helper>
-void testTimedJoinDur(const long long jumpMs)
+void testTimedJoinRelative(const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::steady_time_point before(Helper::steadyNow());
@@ -846,7 +846,7 @@ void testTimedJoinDur(const long long jumpMs)
 }
 
 template <typename Helper>
-void testTimedJoinSystem(const long long jumpMs)
+void testTimedJoinAbsolute(const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::steady_time_point before(Helper::steadyNow());
@@ -874,8 +874,8 @@ void testJoinBoost(const std::string& name)
     runTestWithNone<Helper>(testTryJoinUntilSteady<Helper>, name + "::thread::try_join_until(), steady time");
     runTestWithNone<Helper>(testTryJoinUntilSystem<Helper>, name + "::thread::try_join_until(), system time");
     runTestWithNone<Helper>(testTryJoinUntilCustom<Helper>, name + "::thread::try_join_until(), custom time");
-    runTestWithNone<Helper>(testTimedJoinDur      <Helper>, name + "::thread::timed_join(), posix duration");
-    runTestWithNone<Helper>(testTimedJoinSystem   <Helper>, name + "::thread::timed_join(), posix system time");
+    runTestWithNone<Helper>(testTimedJoinRelative <Helper>, name + "::thread::timed_join(), relative time");
+    runTestWithNone<Helper>(testTimedJoinAbsolute <Helper>, name + "::thread::timed_join(), absolute time");
 }
 
 //******************************************************************************
@@ -941,7 +941,7 @@ void testCondVarWaitUntilCustom(const long long jumpMs)
 //--------------------------------------
 
 template <typename Helper>
-void testCondVarTimedWaitDur(const long long jumpMs)
+void testCondVarTimedWaitRelative(const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::cond cv;
@@ -960,7 +960,7 @@ void testCondVarTimedWaitDur(const long long jumpMs)
 }
 
 template <typename Helper>
-void testCondVarTimedWaitSystem(const long long jumpMs)
+void testCondVarTimedWaitAbsolute(const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::cond cv;
@@ -997,8 +997,8 @@ void testCondVarBoost(const std::string& name)
     testCondVarStd<Helper>(name);
 
     // Boost-only functions
-    runTestWithNone<Helper>(testCondVarTimedWaitDur   <Helper>, name + "::timed_wait(), posix duration");
-    runTestWithNone<Helper>(testCondVarTimedWaitSystem<Helper>, name + "::timed_wait(), posix system time");
+    runTestWithNone<Helper>(testCondVarTimedWaitRelative<Helper>, name + "::timed_wait(), relative time");
+    runTestWithNone<Helper>(testCondVarTimedWaitAbsolute<Helper>, name + "::timed_wait(), absolute time");
 }
 
 //******************************************************************************
@@ -1064,7 +1064,7 @@ void testCondVarWaitUntilPredCustom(const long long jumpMs)
 //--------------------------------------
 
 template <typename Helper>
-void testCondVarTimedWaitPredDur(const long long jumpMs)
+void testCondVarTimedWaitPredRelative(const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::cond cv;
@@ -1083,7 +1083,7 @@ void testCondVarTimedWaitPredDur(const long long jumpMs)
 }
 
 template <typename Helper>
-void testCondVarTimedWaitPredSystem(const long long jumpMs)
+void testCondVarTimedWaitPredAbsolute(const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::cond cv;
@@ -1120,8 +1120,8 @@ void testCondVarPredBoost(const std::string& name)
     testCondVarPredStd<Helper>(name);
 
     // Boost-only functions
-    runTestWithNone<Helper>(testCondVarTimedWaitPredDur   <Helper>, name + "::timed_wait(), with predicate, posix duration");
-    runTestWithNone<Helper>(testCondVarTimedWaitPredSystem<Helper>, name + "::timed_wait(), with predicate, posix system time");
+    runTestWithNone<Helper>(testCondVarTimedWaitPredRelative<Helper>, name + "::timed_wait(), with predicate, relative time");
+    runTestWithNone<Helper>(testCondVarTimedWaitPredAbsolute<Helper>, name + "::timed_wait(), with predicate, absolute time");
 }
 
 //******************************************************************************
@@ -1171,7 +1171,7 @@ void testTryLockUntilCustom(typename Helper::mutex& m, const long long jumpMs)
 //--------------------------------------
 
 template <typename Helper>
-void testTimedLockDur(typename Helper::mutex& m, const long long jumpMs)
+void testTimedLockRelative(typename Helper::mutex& m, const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::steady_time_point before(Helper::steadyNow());
@@ -1186,7 +1186,7 @@ void testTimedLockDur(typename Helper::mutex& m, const long long jumpMs)
 }
 
 template <typename Helper>
-void testTimedLockSystem(typename Helper::mutex& m, const long long jumpMs)
+void testTimedLockAbsolute(typename Helper::mutex& m, const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::steady_time_point before(Helper::steadyNow());
@@ -1219,8 +1219,8 @@ void testMutexBoost(const std::string& name)
     testMutexStd<Helper>(name);
 
     // Boost-only functions
-    runTestWithUnique<Helper>(testTimedLockDur   <Helper>, name + "::timed_lock(), posix duration");
-    runTestWithUnique<Helper>(testTimedLockSystem<Helper>, name + "::timed_lock(), posix system time");
+    runTestWithUnique<Helper>(testTimedLockRelative<Helper>, name + "::timed_lock(), relative time");
+    runTestWithUnique<Helper>(testTimedLockAbsolute<Helper>, name + "::timed_lock(), absolute time");
 }
 
 //******************************************************************************
@@ -1270,7 +1270,7 @@ void testTryLockSharedUntilCustom(typename Helper::mutex& m, const long long jum
 //--------------------------------------
 
 template <typename Helper>
-void testTimedLockSharedDur(typename Helper::mutex& m, const long long jumpMs)
+void testTimedLockSharedRelative(typename Helper::mutex& m, const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::steady_time_point before(Helper::steadyNow());
@@ -1285,7 +1285,7 @@ void testTimedLockSharedDur(typename Helper::mutex& m, const long long jumpMs)
 }
 
 template <typename Helper>
-void testTimedLockSharedSystem(typename Helper::mutex& m, const long long jumpMs)
+void testTimedLockSharedAbsolute(typename Helper::mutex& m, const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::steady_time_point before(Helper::steadyNow());
@@ -1318,8 +1318,8 @@ void testMutexSharedBoost(const std::string& name)
     testMutexSharedStd<Helper>(name);
 
     // Boost-only functions
-    runTestWithUnique<Helper>(testTimedLockSharedDur   <Helper>, name + "::timed_lock_shared(), posix duration");
-    runTestWithUnique<Helper>(testTimedLockSharedSystem<Helper>, name + "::timed_lock_shared(), posix system time");
+    runTestWithUnique<Helper>(testTimedLockSharedRelative<Helper>, name + "::timed_lock_shared(), relative time");
+    runTestWithUnique<Helper>(testTimedLockSharedAbsolute<Helper>, name + "::timed_lock_shared(), absolute time");
 }
 
 //******************************************************************************
@@ -1371,7 +1371,7 @@ void testTryLockUpgradeUntilCustom(typename Helper::mutex& m, const long long ju
 //--------------------------------------
 
 template <typename Helper>
-void testTimedLockUpgradeDur(typename Helper::mutex& m, const long long jumpMs)
+void testTimedLockUpgradeRelative(typename Helper::mutex& m, const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::steady_time_point before(Helper::steadyNow());
@@ -1386,7 +1386,7 @@ void testTimedLockUpgradeDur(typename Helper::mutex& m, const long long jumpMs)
 }
 
 template <typename Helper>
-void testTimedLockUpgradeSystem(typename Helper::mutex& m, const long long jumpMs)
+void testTimedLockUpgradeAbsolute(typename Helper::mutex& m, const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::steady_time_point before(Helper::steadyNow());
@@ -1566,8 +1566,8 @@ void testMutexUpgradeBoost(const std::string& name)
     runTestWithUnique<Helper>(testTryLockUpgradeUntilSteady<Helper>, name + "::try_lock_upgrade_until(), steady time");
     runTestWithUnique<Helper>(testTryLockUpgradeUntilSystem<Helper>, name + "::try_lock_upgrade_until(), system time");
     runTestWithUnique<Helper>(testTryLockUpgradeUntilCustom<Helper>, name + "::try_lock_upgrade_until(), custom time");
-    runTestWithUnique<Helper>(testTimedLockUpgradeDur      <Helper>, name + "::timed_lock_upgrade(), posix duration");
-    runTestWithUnique<Helper>(testTimedLockUpgradeSystem   <Helper>, name + "::timed_lock_upgrade(), posix system time");
+    runTestWithUnique<Helper>(testTimedLockUpgradeRelative <Helper>, name + "::timed_lock_upgrade(), relative time");
+    runTestWithUnique<Helper>(testTimedLockUpgradeAbsolute <Helper>, name + "::timed_lock_upgrade(), absolute time");
 
     std::cout << std::endl;
     runTestWithShared<Helper>(testTryUnlockSharedAndLockFor        <Helper>, name + "::try_unlock_shared_and_lock_for()");
@@ -1648,7 +1648,7 @@ void testFutureWaitUntilCustom(const long long jumpMs)
 //--------------------------------------
 
 template <typename Helper>
-void testFutureTimedWaitDur(const long long jumpMs)
+void testFutureTimedWaitRelative(const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::packaged_task pt(returnFalse);
@@ -1666,7 +1666,7 @@ void testFutureTimedWaitDur(const long long jumpMs)
 }
 
 template <typename Helper>
-void testFutureTimedWaitSystem(const long long jumpMs)
+void testFutureTimedWaitAbsolute(const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::packaged_task pt(returnFalse);
@@ -1702,8 +1702,8 @@ void testFutureBoost(const std::string& name)
     testFutureStd<Helper>(name);
 
     // Boost-only functions
-    runTestWithNone<Helper>(testFutureTimedWaitDur   <Helper>, name + "::timed_wait(), posix duration");
-    runTestWithNone<Helper>(testFutureTimedWaitSystem<Helper>, name + "::timed_wait_until(), posix system time");
+    runTestWithNone<Helper>(testFutureTimedWaitRelative<Helper>, name + "::timed_wait(), relative time");
+    runTestWithNone<Helper>(testFutureTimedWaitAbsolute<Helper>, name + "::timed_wait_until(), absolute time");
 }
 
 //******************************************************************************
@@ -1769,7 +1769,7 @@ void testSharedFutureWaitUntilCustom(const long long jumpMs)
 //--------------------------------------
 
 template <typename Helper>
-void testSharedFutureTimedWaitDur(const long long jumpMs)
+void testSharedFutureTimedWaitRelative(const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::packaged_task pt(returnFalse);
@@ -1788,7 +1788,7 @@ void testSharedFutureTimedWaitDur(const long long jumpMs)
 }
 
 template <typename Helper>
-void testSharedFutureTimedWaitSystem(const long long jumpMs)
+void testSharedFutureTimedWaitAbsolute(const long long jumpMs)
 {
 #ifndef SKIP_DATETIME_FUNCTIONS
     typename Helper::packaged_task pt(returnFalse);
@@ -1825,8 +1825,8 @@ void testSharedFutureBoost(const std::string& name)
     testSharedFutureStd<Helper>(name);
 
     // Boost-only functions
-    runTestWithNone<Helper>(testSharedFutureTimedWaitDur   <Helper>, name + "::timed_wait(), posix duration");
-    runTestWithNone<Helper>(testSharedFutureTimedWaitSystem<Helper>, name + "::timed_wait_until(), posix system time");
+    runTestWithNone<Helper>(testSharedFutureTimedWaitRelative<Helper>, name + "::timed_wait(), relative time");
+    runTestWithNone<Helper>(testSharedFutureTimedWaitAbsolute<Helper>, name + "::timed_wait_until(), absolute time");
 }
 
 //******************************************************************************
