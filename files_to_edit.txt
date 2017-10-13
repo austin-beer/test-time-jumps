@@ -20,5 +20,3 @@ include/boost/thread/win32/thread_data.hpp
 include/boost/thread/win32/thread_primitives.hpp
 src/pthread/thread.cpp
 src/win32/thread.cpp
-test/Jamfile.v2
-example/shared_mutex.cpp
