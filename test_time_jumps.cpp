@@ -12,11 +12,7 @@
 #include "boost/thread/mutex.hpp"
 #include "boost/thread/recursive_mutex.hpp"
 #include "boost/thread/shared_lock_guard.hpp"
-#ifdef USE_V2_SHARED_MUTEX
-#include "boost/thread/v2/shared_mutex.hpp"
-#else
 #include "boost/thread/shared_mutex.hpp"
-#endif
 #include "boost/thread/thread.hpp"
 
 #include <iomanip>
@@ -1880,6 +1876,13 @@ int main()
     std::cout << "NO" << std::endl;
 #endif
 
+    std::cout << "BOOST_THREAD_V2_SHARED_MUTEX:                           ";
+#ifdef BOOST_THREAD_V2_SHARED_MUTEX
+    std::cout << "YES" << std::endl;
+#else
+    std::cout << "NO" << std::endl;
+#endif
+
     std::cout << "BOOST_THREAD_HAS_CONDATTR_SET_CLOCK_MONOTONIC:          ";
 #ifdef BOOST_THREAD_HAS_CONDATTR_SET_CLOCK_MONOTONIC
     std::cout << "YES" << std::endl;
@@ -1888,12 +1891,12 @@ int main()
 #endif
 
     std::cout << std::endl;
-    std::cout << "Wait Time:              " << s_waitMs << " ms" << std::endl;
-    std::cout << "Short Jump Time:        " << s_shortJumpMs << " ms" << std::endl;
-    std::cout << "Long Jump Time:         " << s_longJumpMs << " ms" << std::endl;
+    std::cout << "Wait Time:              " << s_waitMs            << " ms" << std::endl;
+    std::cout << "Short Jump Time:        " << s_shortJumpMs       << " ms" << std::endl;
+    std::cout << "Long Jump Time:         " << s_longJumpMs        << " ms" << std::endl;
     std::cout << "Sleep Before Jump Time: " << s_sleepBeforeJumpMs << " ms" << std::endl;
-    std::cout << "Max Early Error:        " << s_maxEarlyErrorMs << " ms" << std::endl;
-    std::cout << "Max Late Error:         " << s_maxLateErrorMs << " ms" << std::endl;
+    std::cout << "Max Early Error:        " << s_maxEarlyErrorMs   << " ms" << std::endl;
+    std::cout << "Max Late Error:         " << s_maxLateErrorMs    << " ms" << std::endl;
 
     testSleepBoost             <BoostHelper<                                           > >("boost");
     testSleepNoIntBoost        <BoostHelper<                                           > >("boost");

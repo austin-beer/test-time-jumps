@@ -1,11 +1,11 @@
 # Before using this makefile:
-# 1. Build with Microsoft Visual Studio 2013.
+# 1. Build with Microsoft Visual Studio 2017.
 # 2. Make sure b2 is in the PATH.
 # 3. Update the *_DIR variables below to point to your local source code directories.
-# 4. Run "b2 headers toolset=msvc-12.0" in the Boost source directories specified below.
+# 4. Run "b2 headers toolset=msvc-14.1" in the Boost source directories specified below.
 
-TOOLSET    = msvc-12.0
-DECORATION = vc120-mt-1_66
+TOOLSET    = msvc-14.1
+DECORATION = vc141-mt-1_66
 
 # boostorg/thread develop branch
 BOOST_ORIG_DIR   = $(MAKEDIR)\git_orig
