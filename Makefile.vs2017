@@ -5,7 +5,7 @@
 # 4. Run "b2 headers toolset=msvc-14.1" in the Boost source directories specified below.
 
 TOOLSET    = msvc-14.1
-DECORATION = vc141-mt-1_66
+DECORATION = vc141-mt-x64-1_66
 
 # boostorg/thread develop branch
 BOOST_ORIG_DIR   = $(MAKEDIR)\git_orig
@@ -26,7 +26,7 @@ CXXFLAGS_AUSTIN2 = $(CXXFLAGS_COMMON) /DBOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWAR
 CXXFLAGS_AUSTIN3 = $(CXXFLAGS_COMMON) /DBOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSIONS /DBOOST_THREAD_V2_SHARED_MUTEX
 
 BUILD_BOOST_COMMON  = b2 --abbreviate-paths --build-dir=dist --with-system --with-thread --with-date_time --with-atomic
-BUILD_BOOST_COMMON  = $(BUILD_BOOST_COMMON) toolset=$(TOOLSET) threadapi=win32 address-model=64 link=static variant=release
+BUILD_BOOST_COMMON  = $(BUILD_BOOST_COMMON) toolset=$(TOOLSET) link=static variant=release address-model=64
 BUILD_BOOST_ORIG1   = $(BUILD_BOOST_COMMON) cxxflags="$(CXXFLAGS_ORIG1)"   stage
 BUILD_BOOST_ORIG2   = $(BUILD_BOOST_COMMON) cxxflags="$(CXXFLAGS_ORIG2)"   stage
 BUILD_BOOST_FIXED1  = $(BUILD_BOOST_COMMON) cxxflags="$(CXXFLAGS_FIXED1)"  stage

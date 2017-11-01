@@ -25,7 +25,7 @@ CXXFLAGS_AUSTIN1 := $(CXXFLAGS_COMMON)
 CXXFLAGS_AUSTIN2 := $(CXXFLAGS_COMMON) -DBOOST_THREAD_V2_SHARED_MUTEX
 
 BUILD_BOOST_COMMON  := b2 --abbreviate-paths --build-dir=dist --with-system --with-thread --with-chrono
-BUILD_BOOST_COMMON  := $(BUILD_BOOST_COMMON) toolset=gcc threadapi=pthread link=static variant=release
+BUILD_BOOST_COMMON  := $(BUILD_BOOST_COMMON) toolset=gcc link=static variant=release
 BUILD_BOOST_ORIG1   := $(BUILD_BOOST_COMMON) cxxflags="$(CXXFLAGS_ORIG1)"   stage
 BUILD_BOOST_ORIG2   := $(BUILD_BOOST_COMMON) cxxflags="$(CXXFLAGS_ORIG2)"   stage
 BUILD_BOOST_FIXED1  := $(BUILD_BOOST_COMMON) cxxflags="$(CXXFLAGS_FIXED1)"  stage
