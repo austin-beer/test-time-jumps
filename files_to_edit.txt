@@ -6,6 +6,13 @@ include/boost/thread/shared_mutex.hpp
 include/boost/thread/thread_only.hpp
 include/boost/thread/v2/shared_mutex.hpp
 include/boost/thread/v2/thread.hpp
+include/boost/thread/concurrent_queues/detail/sync_queue_base.hpp
+include/boost/thread/concurrent_queues/detail/sync_deque_base.hpp
+include/boost/thread/concurrent_queues/sync_queue.hpp
+include/boost/thread/concurrent_queues/sync_deque.hpp
+include/boost/thread/concurrent_queues/sync_priority_queue.hpp
+include/boost/thread/concurrent_queues/sync_timed_queue.hpp
+include/boost/thread/concurrent_queues/sync_bounded_queue.hpp
 include/boost/thread/pthread/condition_variable_fwd.hpp
 include/boost/thread/pthread/condition_variable.hpp
 include/boost/thread/pthread/mutex.hpp

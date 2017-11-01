@@ -11,7 +11,8 @@ BOOST_FIXED_DIR  := $(ROOT_DIR)/git_fixed
 # austin-beer/thread feature/timespec_clocks_prX branch
 BOOST_AUSTIN_DIR := $(ROOT_DIR)/git_austin
 
-CXXFLAGS_COMMON  := -DBOOST_THREAD_PROVIDES_FUTURE -DBOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSIONS
+# sync_timed_queue doesn't compile without BOOST_THREAD_USES_MOVE
+CXXFLAGS_COMMON  := -DBOOST_THREAD_PROVIDES_FUTURE -DBOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSIONS -DBOOST_THREAD_USES_MOVE
 #CXXFLAGS_COMMON  := $(CXXFLAGS_COMMON) -DCPP14_ENABLED
 CXXFLAGS_ORIG1   := $(CXXFLAGS_COMMON) -DSKIP_NO_INT_SLEEP
 CXXFLAGS_ORIG2   := $(CXXFLAGS_COMMON) -DBOOST_THREAD_HAS_CONDATTR_SET_CLOCK_MONOTONIC -DSKIP_DATETIME_FUNCTIONS -DSKIP_NO_INT_SLEEP
@@ -20,7 +21,7 @@ CXXFLAGS_FIXED2  := $(CXXFLAGS_COMMON) -DBOOST_THREAD_V2_SHARED_MUTEX
 CXXFLAGS_AUSTIN1 := $(CXXFLAGS_COMMON)
 CXXFLAGS_AUSTIN2 := $(CXXFLAGS_COMMON) -DBOOST_THREAD_V2_SHARED_MUTEX
 
-BUILD_BOOST_COMMON  := b2 --abbreviate-paths --build-dir=dist --with-chrono --with-thread --with-system
+BUILD_BOOST_COMMON  := b2 --abbreviate-paths --build-dir=dist --with-system --with-thread --with-chrono
 BUILD_BOOST_COMMON  := $(BUILD_BOOST_COMMON) toolset=clang threadapi=pthread link=static variant=release
 BUILD_BOOST_ORIG1   := $(BUILD_BOOST_COMMON) cxxflags="$(CXXFLAGS_ORIG1)"   stage
 BUILD_BOOST_ORIG2   := $(BUILD_BOOST_COMMON) cxxflags="$(CXXFLAGS_ORIG2)"   stage
@@ -64,19 +65,13 @@ fixed: fixed1 fixed2
 austin: austin1 austin2
 
 clean-orig:
-	$(CLEAN_ORIG) && \
-	rm -f $(ROOT_DIR)/test_time_jumps_orig1_default && \
-	rm -f $(ROOT_DIR)/test_time_jumps_orig2_mono_condattr
+	$(CLEAN_ORIG)
 
 clean-fixed:
-	$(CLEAN_FIXED) && \
-	rm -f $(ROOT_DIR)/test_time_jumps_fixed1_default && \
-	rm -f $(ROOT_DIR)/test_time_jumps_fixed2_v2_shared
+	$(CLEAN_FIXED)
 
 clean-austin:
-	$(CLEAN_AUSTIN) && \
-	rm -f $(ROOT_DIR)/test_time_jumps_austin1_default && \
-	rm -f $(ROOT_DIR)/test_time_jumps_austin2_v2_shared
+	$(CLEAN_AUSTIN)
 
 orig1: test_time_jumps.cpp
 	$(CLEAN_ORIG) && \
