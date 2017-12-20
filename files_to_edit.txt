@@ -25,7 +25,6 @@ include/boost/thread/pthread/thread_data.hpp
 include/boost/thread/pthread/timespec.hpp
 include/boost/thread/win32/basic_recursive_mutex.hpp
 include/boost/thread/win32/basic_timed_mutex.hpp
-include/boost/thread/win32/basic_timed_mutex.hpp
 include/boost/thread/win32/condition_variable.hpp
 include/boost/thread/win32/interlocked_read.hpp
 include/boost/thread/win32/mutex.hpp
