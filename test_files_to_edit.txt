@@ -1,6 +1,7 @@
 test/Jamfile.v2
 
 example/shared_mutex.cpp
+test/sync/mutual_exclusion/locks/upgrade_lock/cons/adopt_lock_pass.cpp
 
 test/sync/mutual_exclusion/sync_pq/pq_single_thread_pass.cpp
 
