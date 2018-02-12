@@ -18,22 +18,38 @@
 #include "boost/thread/thread.hpp"
 
 #include <iomanip>
-#ifdef CPP14_ENABLED
+#ifdef TEST_CPP14_FEATURES
 #include <future>
 #include <mutex>
 #include <shared_mutex>
 #include <thread>
 #endif
 
-// These values are intentially:
-//   more than 2 * 100 milliseconds
-//   more than 2 * 100 milliseconds apart
-//   not a multiple of 100 milliseconds
-//   not a multiple of each other
-//   don't sum or diff to a multiple of 100 milliseconds
+/******************************************************************************/
+
+/*
+ * Summary:
+ *
+ * This code tests the behavior of time-related functions in the presence of
+ * system clock changes (jumps). It requires root/Administrator privileges in
+ * order to run because it changes the system clock. NTP should also be disabled
+ * while running this code so that NTP can't change the system clock.
+ *
+ * Each function to be tested is executed five times. The amount of time the
+ * function waits before returning is measured against the amount of time the
+ * function was expected to wait. If the difference exceeds a threshold value
+ * (defined below) then the test fails.
+ *
+ * The following values are intentially:
+ * - more than 200 milliseconds
+ * - more than 200 milliseconds apart
+ * - not a multiple of 100 milliseconds
+ * - not a multiple of each other
+ * - don't sum or diff to a multiple of 100 milliseconds
+ */
 const long long s_waitMs            = 580;
 const long long s_shortJumpMs       = 230;
-const long long s_longJumpMs        = 870; // causes additional, unavoidable failures when BOOST_THREAD_HAS_CONDATTR_SET_CLOCK_MONOTONIC is disabled
+const long long s_longJumpMs        = 870; // Causes additional, unavoidable failures when BOOST_THREAD_HAS_CONDATTR_SET_CLOCK_MONOTONIC is disabled
 const long long s_sleepBeforeJumpMs = 110;
 
 #ifdef _WIN32
@@ -43,14 +59,14 @@ const long long s_maxLateErrorMs  = 110  // due to polling, functions may not re
                                   + 100; // Windows is slow, especially in a VM, so allow extra time for the functions to return
 #else
 const long long s_maxEarlyErrorMs =  10;
-const long long s_maxLateErrorMs  = 110; // due to polling, functions may not return for up to 100 milliseconds after they are supposed to
+const long long s_maxLateErrorMs  = 110; // Due to polling, functions may not return for up to 100 milliseconds after they are supposed to
 #endif
 
 int g_numTestsRun    = 0;
 int g_numTestsPassed = 0;
 int g_numTestsFailed = 0;
 
-//******************************************************************************
+/******************************************************************************/
 
 // A custom clock based off the system clock but with a different epoch.
 
@@ -75,7 +91,7 @@ namespace custom
         return time_point(boost::chrono::ceil<duration>(boost::chrono::system_clock::now().time_since_epoch()) - boost::chrono::hours(10 * 365 * 24));
     }
 
-#ifdef CPP14_ENABLED
+#ifdef TEST_CPP14_FEATURES
     class custom_std_clock
     {
     public:
@@ -97,7 +113,7 @@ namespace custom
 #endif
 }
 
-//******************************************************************************
+/******************************************************************************/
 
 template <typename MutexType = boost::mutex, typename CondType = boost::condition_variable>
 struct BoostHelper
@@ -185,7 +201,7 @@ template <typename MutexType, typename CondType>
 const typename BoostHelper<MutexType, CondType>::milliseconds
 BoostHelper<MutexType, CondType>::waitDur = typename BoostHelper<MutexType, CondType>::milliseconds(s_waitMs);
 
-#ifdef CPP14_ENABLED
+#ifdef TEST_CPP14_FEATURES
 template <typename MutexType = std::mutex, typename CondType = std::condition_variable>
 struct StdHelper
 {
@@ -261,7 +277,7 @@ const typename StdHelper<MutexType, CondType>::milliseconds
 StdHelper<MutexType, CondType>::waitDur = typename StdHelper<MutexType, CondType>::milliseconds(s_waitMs);
 #endif
 
-//******************************************************************************
+/******************************************************************************/
 
 #ifdef _WIN32
 
@@ -456,7 +472,7 @@ bool returnFalse()
     return false;
 }
 
-//******************************************************************************
+/******************************************************************************/
 
 // Run the test in the context provided, which may be the current thread or a separate thread.
 template <typename Helper, typename Context, typename Function>
@@ -577,7 +593,7 @@ void runTestWithUpgrade(Function func, const std::string name)
     runTestInContext<Helper>(threadContextWithUpgrade<Helper, Function>, func, name);
 }
 
-//******************************************************************************
+/******************************************************************************/
 
 // Test Sleep
 
@@ -696,7 +712,7 @@ void testSleepNoThreadBoost(const std::string& name)
     runTest<Helper>(testSleepAbsolute<Helper>, name + "::this_thread::sleep(), no thread, absolute time");
 }
 
-//******************************************************************************
+/******************************************************************************/
 
 // Test Sleep, No Interruption Point
 
@@ -811,7 +827,7 @@ void testSleepNoThreadNoIntBoost(const std::string& name)
 #endif
 }
 
-//******************************************************************************
+/******************************************************************************/
 
 // Test Try Join
 
@@ -910,7 +926,7 @@ void testJoinBoost(const std::string& name)
     runTestWithNone<Helper>(testTimedJoinAbsolute <Helper>, name + "::thread::timed_join(), absolute time");
 }
 
-//******************************************************************************
+/******************************************************************************/
 
 // Test Condition Variable Wait
 
@@ -1033,7 +1049,7 @@ void testCondVarBoost(const std::string& name)
     runTestWithNone<Helper>(testCondVarTimedWaitAbsolute<Helper>, name + "::timed_wait(), absolute time");
 }
 
-//******************************************************************************
+/******************************************************************************/
 
 // Test Condition Variable Wait with Predicate
 
@@ -1156,7 +1172,7 @@ void testCondVarPredBoost(const std::string& name)
     runTestWithNone<Helper>(testCondVarTimedWaitPredAbsolute<Helper>, name + "::timed_wait(), with predicate, absolute time");
 }
 
-//******************************************************************************
+/******************************************************************************/
 
 // Test Try Lock
 
@@ -1255,7 +1271,7 @@ void testMutexBoost(const std::string& name)
     runTestWithUnique<Helper>(testTimedLockAbsolute<Helper>, name + "::timed_lock(), absolute time");
 }
 
-//******************************************************************************
+/******************************************************************************/
 
 // Test Try Lock Shared
 
@@ -1354,7 +1370,7 @@ void testMutexSharedBoost(const std::string& name)
     runTestWithUnique<Helper>(testTimedLockSharedAbsolute<Helper>, name + "::timed_lock_shared(), absolute time");
 }
 
-//******************************************************************************
+/******************************************************************************/
 
 // Test Try Lock Upgrade
 
@@ -1621,7 +1637,7 @@ void testMutexUpgradeBoost(const std::string& name)
 #endif
 }
 
-//******************************************************************************
+/******************************************************************************/
 
 // Test Future Wait
 
@@ -1738,7 +1754,7 @@ void testFutureBoost(const std::string& name)
     runTestWithNone<Helper>(testFutureTimedWaitAbsolute<Helper>, name + "::timed_wait_until(), absolute time");
 }
 
-//******************************************************************************
+/******************************************************************************/
 
 // Test Shared Future Wait
 
@@ -1861,7 +1877,7 @@ void testSharedFutureBoost(const std::string& name)
     runTestWithNone<Helper>(testSharedFutureTimedWaitAbsolute<Helper>, name + "::timed_wait_until(), absolute time");
 }
 
-//******************************************************************************
+/******************************************************************************/
 
 // Test Sync Priority Queue
 
@@ -1931,7 +1947,7 @@ void testSyncPriorityQueueBoost(const std::string& name)
     runTestWithNone<Helper>(testSyncPriorityQueuePullUntilCustom<Helper>, name + "::pull_until(), custom time");
 }
 
-//******************************************************************************
+/******************************************************************************/
 
 // Test Sync Timed Queue
 
@@ -2178,13 +2194,13 @@ void testSyncTimedQueueBoost(const std::string& name)
     runTestWithNone<Helper>(testSyncTimedQueueWaitPullSucceedsCustom<Helper>, name + "::wait_pull(), succeeds, custom time");
 }
 
-//******************************************************************************
+/******************************************************************************/
 
 int main()
 {
     std::cout << std::endl;
-    std::cout << "NOTE: Run this test as root so it can change the system clock" << std::endl;
-    std::cout << "NOTE: Disable NTP while this test is running" << std::endl;
+    std::cout << "INFO: This test requires root/Administrator privileges in order to change the system clock." << std::endl;
+    std::cout << "INFO: Disable NTP while running this test to prevent NTP from changing the system clock." << std::endl;
     std::cout << std::endl;
 
     std::cout << "BOOST_HAS_PTHREAD_DELAY_NP:                             ";
@@ -2270,7 +2286,7 @@ int main()
     testSyncPriorityQueueBoost <BoostHelper<                                           > >("boost::sync_priority_queue");
     testSyncTimedQueueBoost    <BoostHelper<                                           > >("boost::sync_timed_queue");
 
-#ifdef CPP14_ENABLED
+#ifdef TEST_CPP14_FEATURES
     testSleepStd        <StdHelper<                                       > >("std");
     testSleepNoThreadStd<StdHelper<                                       > >("std");
     testCondVarStd      <StdHelper<std::mutex, std::condition_variable    > >("std::condition_variable");
