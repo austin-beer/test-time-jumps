@@ -1,4 +1,5 @@
 test/Jamfile.v2
+test/test_time_jumps.cpp
 
 example/shared_mutex.cpp
 test/sync/mutual_exclusion/locks/upgrade_lock/cons/adopt_lock_pass.cpp

@@ -1,0 +1,106 @@
+ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+
+# boostorg/thread develop feature
+BOOST_DEVELOP_DIR := $(ROOT_DIR)/git_develop
+# boostorg/thread feature/timespec_clocks feature
+BOOST_FEATURE_DIR := $(ROOT_DIR)/git_feature
+# austin-beer/thread feature/timespec_clocks_prX feature
+BOOST_AUSTIN_DIR  := $(ROOT_DIR)/git_austin
+
+# sync_timed_queue doesn't compile without BOOST_THREAD_USES_MOVE
+CXXFLAGS_COMMON    := -DBOOST_THREAD_PROVIDES_FUTURE -DBOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSIONS -DBOOST_THREAD_USES_MOVE
+#CXXFLAGS_COMMON   := $(CXXFLAGS_COMMON) -DTEST_CPP14_FEATURES
+CXXFLAGS_DEVELOP_1 := $(CXXFLAGS_COMMON)
+CXXFLAGS_DEVELOP_2 := $(CXXFLAGS_COMMON) -DBOOST_THREAD_V2_SHARED_MUTEX
+CXXFLAGS_FEATURE_1 := $(CXXFLAGS_COMMON)
+CXXFLAGS_FEATURE_2 := $(CXXFLAGS_COMMON) -DBOOST_THREAD_V2_SHARED_MUTEX
+CXXFLAGS_AUSTIN_1  := $(CXXFLAGS_COMMON)
+CXXFLAGS_AUSTIN_2  := $(CXXFLAGS_COMMON) -DBOOST_THREAD_V2_SHARED_MUTEX
+
+COMPILE_BOOST_COMMON := b2 --abbreviate-paths --build-dir=dist --with-system --with-thread --with-chrono
+COMPILE_BOOST_COMMON := $(COMPILE_BOOST_COMMON) toolset=$(TOOLSET) link=static variant=release stage
+
+COMPILE_COMMON    := $(COMPILER) test_time_jumps.cpp -O2 -g -lboost_chrono -lboost_thread -lboost_system -lpthread -lrt $(COMPILE_COMMON)
+#COMPILE_COMMON   := $(COMPILE_COMMON) -std=gnu++14
+COMPILE_DEVELOP_1 := $(COMPILE_COMMON) -I $(BOOST_DEVELOP_DIR) $(CXXFLAGS_DEVELOP_1) -L $(BOOST_DEVELOP_DIR)/stage/lib
+COMPILE_DEVELOP_2 := $(COMPILE_COMMON) -I $(BOOST_DEVELOP_DIR) $(CXXFLAGS_DEVELOP_2) -L $(BOOST_DEVELOP_DIR)/stage/lib
+COMPILE_FEATURE_1 := $(COMPILE_COMMON) -I $(BOOST_FEATURE_DIR) $(CXXFLAGS_FEATURE_1) -L $(BOOST_FEATURE_DIR)/stage/lib
+COMPILE_FEATURE_2 := $(COMPILE_COMMON) -I $(BOOST_FEATURE_DIR) $(CXXFLAGS_FEATURE_2) -L $(BOOST_FEATURE_DIR)/stage/lib
+COMPILE_AUSTIN_1  := $(COMPILE_COMMON) -I $(BOOST_AUSTIN_DIR)  $(CXXFLAGS_AUSTIN_1)  -L $(BOOST_AUSTIN_DIR)/stage/lib
+COMPILE_AUSTIN_2  := $(COMPILE_COMMON) -I $(BOOST_AUSTIN_DIR)  $(CXXFLAGS_AUSTIN_2)  -L $(BOOST_AUSTIN_DIR)/stage/lib
+
+CLEAN_DEVELOP = rm -rf $(BOOST_DEVELOP_DIR)/dist && \
+                rm -rf $(BOOST_DEVELOP_DIR)/bin.v2 && \
+                rm -rf $(BOOST_DEVELOP_DIR)/stage && \
+                rm -rf $(BOOST_DEVELOP_DIR)/libs/config/checks/architecture/bin
+
+CLEAN_FEATURE = rm -rf $(BOOST_FEATURE_DIR)/dist && \
+                rm -rf $(BOOST_FEATURE_DIR)/bin.v2 && \
+                rm -rf $(BOOST_FEATURE_DIR)/stage && \
+                rm -rf $(BOOST_FEATURE_DIR)/libs/config/checks/architecture/bin
+
+CLEAN_AUSTIN  = rm -rf $(BOOST_AUSTIN_DIR)/dist && \
+                rm -rf $(BOOST_AUSTIN_DIR)/bin.v2 && \
+                rm -rf $(BOOST_AUSTIN_DIR)/stage && \
+                rm -rf $(BOOST_AUSTIN_DIR)/libs/config/checks/architecture/bin
+
+all: develop austin
+
+clean: clean-develop clean-austin
+
+develop: develop1 develop2
+
+feature: feature1 feature2
+
+austin: austin1 austin2
+
+clean-develop:
+	$(CLEAN_DEVELOP)
+
+clean-feature:
+	$(CLEAN_FEATURE)
+
+clean-austin:
+	$(CLEAN_AUSTIN)
+
+develop1: test_time_jumps.cpp
+	$(CLEAN_DEVELOP) && \
+	rm -f $(ROOT_DIR)/test_time_jumps_develop1_default && \
+	cd $(BOOST_DEVELOP_DIR) && $(COMPILE_BOOST_COMMON) && \
+	cd $(ROOT_DIR) && $(COMPILE_DEVELOP_1) -o test_time_jumps_develop1_default && \
+	$(CLEAN_DEVELOP)
+
+develop2: test_time_jumps.cpp
+	$(CLEAN_DEVELOP) && \
+	rm -f $(ROOT_DIR)/test_time_jumps_develop2_mono_condattr && \
+	cd $(BOOST_DEVELOP_DIR) && $(COMPILE_BOOST_COMMON) && \
+	cd $(ROOT_DIR) && $(COMPILE_DEVELOP_2) -o test_time_jumps_develop2_mono_condattr && \
+	$(CLEAN_DEVELOP)
+
+feature1: test_time_jumps.cpp
+	$(CLEAN_FEATURE) && \
+	rm -f $(ROOT_DIR)/test_time_jumps_feature1_default && \
+	cd $(BOOST_FEATURE_DIR) && $(COMPILE_BOOST_COMMON) && \
+	cd $(ROOT_DIR) && $(COMPILE_FEATURE_1) -o test_time_jumps_feature1_default && \
+	$(CLEAN_FEATURE)
+
+feature2: test_time_jumps.cpp
+	$(CLEAN_FEATURE) && \
+	rm -f $(ROOT_DIR)/test_time_jumps_feature2_v2_shared && \
+	cd $(BOOST_FEATURE_DIR) && $(COMPILE_BOOST_COMMON) && \
+	cd $(ROOT_DIR) && $(COMPILE_FEATURE_2) -o test_time_jumps_feature2_v2_shared && \
+	$(CLEAN_FEATURE)
+
+austin1: test_time_jumps.cpp
+	$(CLEAN_AUSTIN) && \
+	rm -f $(ROOT_DIR)/test_time_jumps_austin1_default && \
+	cd $(BOOST_AUSTIN_DIR) && $(COMPILE_BOOST_COMMON) && \
+	cd $(ROOT_DIR) && $(COMPILE_AUSTIN_1) -o test_time_jumps_austin1_default && \
+	$(CLEAN_AUSTIN)
+
+austin2: test_time_jumps.cpp
+	$(CLEAN_AUSTIN) && \
+	rm -f $(ROOT_DIR)/test_time_jumps_austin2_v2_shared && \
+	cd $(BOOST_AUSTIN_DIR) && $(COMPILE_BOOST_COMMON) && \
+	cd $(ROOT_DIR) && $(COMPILE_AUSTIN_2) -o test_time_jumps_austin2_v2_shared && \
+	$(CLEAN_AUSTIN)
