@@ -1,0 +1,315 @@
+
+INFO: This test requires root/Administrator privileges in order to change the system clock.
+INFO: Disable NTP while running this test to prevent NTP from changing the system clock.
+
+
+Wait Time:              580 ms
+Short Jump Time:        230 ms
+Long Jump Time:         870 ms
+Sleep Before Jump Time: 110 ms
+Max Early Error:        10 ms
+Max Late Error:         110 ms
+
+std::this_thread::sleep_for():
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: N/A,        Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  580 ms, Returned: N/A,        Passed
+    While system clock jumps back (long):     Expected:  580 ms, Actual:  580 ms, Returned: N/A,        Passed
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  580 ms, Returned: N/A,        Passed
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  580 ms, Returned: N/A,        Passed
+std::this_thread::sleep_until(), steady time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: N/A,        Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  580 ms, Returned: N/A,        Passed
+    While system clock jumps back (long):     Expected:  580 ms, Actual:  580 ms, Returned: N/A,        Passed
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  580 ms, Returned: N/A,        Passed
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  580 ms, Returned: N/A,        Passed
+std::this_thread::sleep_until(), system time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: N/A,        Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: N/A,        Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1450 ms, Returned: N/A,        Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  580 ms, Returned: N/A,        FAILED: TOO LONG
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  580 ms, Returned: N/A,        FAILED: TOO LONG
+std::this_thread::sleep_until(), custom time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: N/A,        Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: N/A,        Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1451 ms, Returned: N/A,        Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  580 ms, Returned: N/A,        FAILED: TOO LONG
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  580 ms, Returned: N/A,        FAILED: TOO LONG
+
+std::this_thread::sleep_for(), no thread:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: N/A,        Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  580 ms, Returned: N/A,        Passed
+    While system clock jumps back (long):     Expected:  580 ms, Actual:  580 ms, Returned: N/A,        Passed
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  580 ms, Returned: N/A,        Passed
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  580 ms, Returned: N/A,        Passed
+std::this_thread::sleep_until(), no thread, steady time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: N/A,        Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  580 ms, Returned: N/A,        Passed
+    While system clock jumps back (long):     Expected:  580 ms, Actual:  580 ms, Returned: N/A,        Passed
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  580 ms, Returned: N/A,        Passed
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  580 ms, Returned: N/A,        Passed
+std::this_thread::sleep_until(), no thread, system time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: N/A,        Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: N/A,        Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1450 ms, Returned: N/A,        Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  580 ms, Returned: N/A,        FAILED: TOO LONG
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  580 ms, Returned: N/A,        FAILED: TOO LONG
+std::this_thread::sleep_until(), no thread, custom time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: N/A,        Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: N/A,        Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1450 ms, Returned: N/A,        Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  580 ms, Returned: N/A,        FAILED: TOO LONG
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  580 ms, Returned: N/A,        FAILED: TOO LONG
+
+std::condition_variable::wait_for():
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  810 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps back (long):     Expected:  580 ms, Actual: 1450 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  350 ms, Returned: timeout,    FAILED: TOO SHORT, RETURNED TIMEOUT
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  110 ms, Returned: timeout,    FAILED: TOO SHORT, RETURNED TIMEOUT
+std::condition_variable::wait_until(), steady time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  810 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps back (long):     Expected:  580 ms, Actual: 1450 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  350 ms, Returned: timeout,    FAILED: TOO SHORT, RETURNED TIMEOUT
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  110 ms, Returned: timeout,    FAILED: TOO SHORT, RETURNED TIMEOUT
+std::condition_variable::wait_until(), system time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1450 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  350 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  110 ms, Returned: timeout,    Passed
+std::condition_variable::wait_until(), custom time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1450 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  350 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  110 ms, Returned: timeout,    Passed
+
+std::condition_variable::wait_for(), with predicate:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  810 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps back (long):     Expected:  580 ms, Actual: 1450 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  351 ms, Returned: timeout,    FAILED: TOO SHORT, RETURNED TIMEOUT
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  110 ms, Returned: timeout,    FAILED: TOO SHORT, RETURNED TIMEOUT
+std::condition_variable::wait_until(), with predicate, steady time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  810 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps back (long):     Expected:  580 ms, Actual: 1450 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  350 ms, Returned: timeout,    FAILED: TOO SHORT, RETURNED TIMEOUT
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  110 ms, Returned: timeout,    FAILED: TOO SHORT, RETURNED TIMEOUT
+std::condition_variable::wait_until(), with predicate, system time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1450 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  350 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  110 ms, Returned: timeout,    Passed
+std::condition_variable::wait_until(), with predicate, custom time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1450 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  351 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  110 ms, Returned: timeout,    Passed
+
+std::condition_variable_any::wait_for():
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  810 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps back (long):     Expected:  580 ms, Actual: 1450 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  350 ms, Returned: timeout,    FAILED: TOO SHORT, RETURNED TIMEOUT
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  110 ms, Returned: timeout,    FAILED: TOO SHORT, RETURNED TIMEOUT
+std::condition_variable_any::wait_until(), steady time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  810 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps back (long):     Expected:  580 ms, Actual: 1450 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  351 ms, Returned: timeout,    FAILED: TOO SHORT, RETURNED TIMEOUT
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  111 ms, Returned: timeout,    FAILED: TOO SHORT, RETURNED TIMEOUT
+std::condition_variable_any::wait_until(), system time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  811 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1450 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  350 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  110 ms, Returned: timeout,    Passed
+std::condition_variable_any::wait_until(), custom time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1450 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  350 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  110 ms, Returned: timeout,    Passed
+
+std::condition_variable_any::wait_for(), with predicate:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  810 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps back (long):     Expected:  580 ms, Actual: 1450 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  350 ms, Returned: timeout,    FAILED: TOO SHORT, RETURNED TIMEOUT
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  110 ms, Returned: timeout,    FAILED: TOO SHORT, RETURNED TIMEOUT
+std::condition_variable_any::wait_until(), with predicate, steady time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  810 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps back (long):     Expected:  580 ms, Actual: 1450 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  351 ms, Returned: timeout,    FAILED: TOO SHORT, RETURNED TIMEOUT
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  107 ms, Returned: timeout,    FAILED: TOO SHORT, RETURNED TIMEOUT
+std::condition_variable_any::wait_until(), with predicate, system time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1450 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  350 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  110 ms, Returned: timeout,    Passed
+std::condition_variable_any::wait_until(), with predicate, custom time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1450 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  350 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  110 ms, Returned: timeout,    Passed
+
+std::timed_mutex::try_lock_for():
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: failed,     Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  810 ms, Returned: failed,     FAILED: TOO LONG
+    While system clock jumps back (long):     Expected:  580 ms, Actual: 1450 ms, Returned: failed,     FAILED: TOO LONG
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  350 ms, Returned: failed,     FAILED: TOO SHORT
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  110 ms, Returned: failed,     FAILED: TOO SHORT
+std::timed_mutex::try_lock_until(), steady time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: failed,     Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  810 ms, Returned: failed,     FAILED: TOO LONG
+    While system clock jumps back (long):     Expected:  580 ms, Actual: 1450 ms, Returned: failed,     FAILED: TOO LONG
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  350 ms, Returned: failed,     FAILED: TOO SHORT
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  110 ms, Returned: failed,     FAILED: TOO SHORT
+std::timed_mutex::try_lock_until(), system time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: failed,     Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: failed,     Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1450 ms, Returned: failed,     Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  350 ms, Returned: failed,     Passed
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  110 ms, Returned: failed,     Passed
+std::timed_mutex::try_lock_until(), custom time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: failed,     Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: failed,     Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1450 ms, Returned: failed,     Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  350 ms, Returned: failed,     Passed
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  110 ms, Returned: failed,     Passed
+
+std::recursive_timed_mutex::try_lock_for():
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: failed,     Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  811 ms, Returned: failed,     FAILED: TOO LONG
+    While system clock jumps back (long):     Expected:  580 ms, Actual: 1450 ms, Returned: failed,     FAILED: TOO LONG
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  350 ms, Returned: failed,     FAILED: TOO SHORT
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  110 ms, Returned: failed,     FAILED: TOO SHORT
+std::recursive_timed_mutex::try_lock_until(), steady time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: failed,     Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  810 ms, Returned: failed,     FAILED: TOO LONG
+    While system clock jumps back (long):     Expected:  580 ms, Actual: 1450 ms, Returned: failed,     FAILED: TOO LONG
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  350 ms, Returned: failed,     FAILED: TOO SHORT
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  110 ms, Returned: failed,     FAILED: TOO SHORT
+std::recursive_timed_mutex::try_lock_until(), system time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: failed,     Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: failed,     Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1450 ms, Returned: failed,     Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  351 ms, Returned: failed,     Passed
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  110 ms, Returned: failed,     Passed
+std::recursive_timed_mutex::try_lock_until(), custom time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: failed,     Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: failed,     Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1450 ms, Returned: failed,     Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  350 ms, Returned: failed,     Passed
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  110 ms, Returned: failed,     Passed
+
+std::shared_timed_mutex::try_lock_for():
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: failed,     Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  810 ms, Returned: failed,     FAILED: TOO LONG
+    While system clock jumps back (long):     Expected:  580 ms, Actual: 1450 ms, Returned: failed,     FAILED: TOO LONG
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  350 ms, Returned: failed,     FAILED: TOO SHORT
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  110 ms, Returned: failed,     FAILED: TOO SHORT
+std::shared_timed_mutex::try_lock_until(), steady time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: failed,     Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  810 ms, Returned: failed,     FAILED: TOO LONG
+    While system clock jumps back (long):     Expected:  580 ms, Actual: 1450 ms, Returned: failed,     FAILED: TOO LONG
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  350 ms, Returned: failed,     FAILED: TOO SHORT
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  111 ms, Returned: failed,     FAILED: TOO SHORT
+std::shared_timed_mutex::try_lock_until(), system time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: failed,     Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: failed,     Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1450 ms, Returned: failed,     Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  350 ms, Returned: failed,     Passed
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  110 ms, Returned: failed,     Passed
+std::shared_timed_mutex::try_lock_until(), custom time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: failed,     Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: failed,     Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1450 ms, Returned: failed,     Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  350 ms, Returned: failed,     Passed
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  110 ms, Returned: failed,     Passed
+
+std::shared_timed_mutex::try_lock_shared_for():
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: failed,     Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  810 ms, Returned: failed,     FAILED: TOO LONG
+    While system clock jumps back (long):     Expected:  580 ms, Actual: 1450 ms, Returned: failed,     FAILED: TOO LONG
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  351 ms, Returned: failed,     FAILED: TOO SHORT
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  110 ms, Returned: failed,     FAILED: TOO SHORT
+std::shared_timed_mutex::try_lock_shared_until(), steady time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: failed,     Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  810 ms, Returned: failed,     FAILED: TOO LONG
+    While system clock jumps back (long):     Expected:  580 ms, Actual: 1450 ms, Returned: failed,     FAILED: TOO LONG
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  350 ms, Returned: failed,     FAILED: TOO SHORT
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  110 ms, Returned: failed,     FAILED: TOO SHORT
+std::shared_timed_mutex::try_lock_shared_until(), system time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: failed,     Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: failed,     Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1450 ms, Returned: failed,     Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  350 ms, Returned: failed,     Passed
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  110 ms, Returned: failed,     Passed
+std::shared_timed_mutex::try_lock_shared_until(), custom time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: failed,     Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  810 ms, Returned: failed,     Passed
+    While system clock jumps back (long):     Expected: 1450 ms, Actual: 1450 ms, Returned: failed,     Passed
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  351 ms, Returned: failed,     Passed
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  110 ms, Returned: failed,     Passed
+
+std::future::wait_for():
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+std::future::wait_until(), steady time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+std::future::wait_until(), system time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  580 ms, Returned: timeout,    FAILED: TOO SHORT, RETURNED TIMEOUT
+    While system clock jumps back (long):     Expected: 1450 ms, Actual:  580 ms, Returned: timeout,    FAILED: TOO SHORT, RETURNED TIMEOUT
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  580 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  580 ms, Returned: timeout,    FAILED: TOO LONG
+std::future::wait_until(), custom time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  580 ms, Returned: timeout,    FAILED: TOO SHORT, RETURNED TIMEOUT
+    While system clock jumps back (long):     Expected: 1450 ms, Actual:  580 ms, Returned: timeout,    FAILED: TOO SHORT, RETURNED TIMEOUT
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  580 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  580 ms, Returned: timeout,    FAILED: TOO LONG
+
+std::shared_future::wait_for():
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+std::shared_future::wait_until(), steady time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps back (long):     Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps forward (short): Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps forward (long):  Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+std::shared_future::wait_until(), system time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  580 ms, Returned: timeout,    FAILED: TOO SHORT, RETURNED TIMEOUT
+    While system clock jumps back (long):     Expected: 1450 ms, Actual:  580 ms, Returned: timeout,    FAILED: TOO SHORT, RETURNED TIMEOUT
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  580 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  580 ms, Returned: timeout,    FAILED: TOO LONG
+std::shared_future::wait_until(), custom time:
+    While system clock remains stable:        Expected:  580 ms, Actual:  580 ms, Returned: timeout,    Passed
+    While system clock jumps back (short):    Expected:  810 ms, Actual:  580 ms, Returned: timeout,    FAILED: TOO SHORT, RETURNED TIMEOUT
+    While system clock jumps back (long):     Expected: 1450 ms, Actual:  580 ms, Returned: timeout,    FAILED: TOO SHORT, RETURNED TIMEOUT
+    While system clock jumps forward (short): Expected:  350 ms, Actual:  580 ms, Returned: timeout,    FAILED: TOO LONG
+    While system clock jumps forward (long):  Expected:  110 ms, Actual:  580 ms, Returned: timeout,    FAILED: TOO LONG
+
+Number of Tests Run:    240
+Number of Tests Passed: 152
+Number of Tests Failed: 88
